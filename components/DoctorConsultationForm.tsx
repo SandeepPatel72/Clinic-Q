@@ -74,15 +74,27 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
     fetch('/metadata.json').then(r => r.json()).then(d => setMetadata(d)).catch(() => {});
   }, []);
 
+  const handlePrintAndFinalize = () => {
+    handlePrintPrescription();
+    setTimeout(() => {
+      if (formRef.current) formRef.current.requestSubmit();
+    }, 500);
+  };
+
   useEffect(() => {
-    const handleCtrlEnter = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'Enter' && formRef.current?.contains(document.activeElement)) {
-        e.preventDefault();
-        formRef.current.requestSubmit();
+    const handleKeyShortcuts = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && formRef.current?.contains(document.activeElement)) {
+        if (e.shiftKey) {
+          e.preventDefault();
+          handlePrintAndFinalize();
+        } else if (e.ctrlKey) {
+          e.preventDefault();
+          formRef.current.requestSubmit();
+        }
       }
     };
-    window.addEventListener('keydown', handleCtrlEnter);
-    return () => window.removeEventListener('keydown', handleCtrlEnter);
+    window.addEventListener('keydown', handleKeyShortcuts);
+    return () => window.removeEventListener('keydown', handleKeyShortcuts);
   }, []);
 
   const escHtml = (str: string) => str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -548,6 +560,16 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
             <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
           </svg>
           Print Prescription
+        </button>
+        <button
+          type="button"
+          onClick={handlePrintAndFinalize}
+          className="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5 rounded-2xl shadow-xl transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 text-sm uppercase tracking-[0.15em]"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          Print & Finalize (Shift+Ent)
         </button>
         <button
           type="submit"

@@ -115,13 +115,14 @@ app.get('/api/metadata', (req, res) => {
     }
 });
 
-app.get('/api/app-settings', async (req, res) => {
+app.get('/api/app-settings', (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM app_sett ORDER BY id DESC LIMIT 1');
-        if (result.rows.length === 0) {
+        const credRaw = fs.readFileSync(path.join(__dirname, 'secretcred.json'), 'utf8');
+        const cred = JSON.parse(credRaw);
+        if (!cred.subscription) {
             return res.status(404).json({ error: 'No settings found' });
         }
-        res.json(result.rows[0]);
+        res.json(cred.subscription);
     } catch (err) {
         console.error('App settings error:', err);
         res.status(500).json({ error: 'Failed to fetch app settings' });

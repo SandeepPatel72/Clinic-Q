@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.gitignore
+*.md
+attached_assets
+*.png
+.replit
+replit.nix
+replit.md
+.local
+.config
+.cache
+PROMPT.md
