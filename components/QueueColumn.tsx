@@ -55,15 +55,19 @@ const cardVariants = {
 };
 
 const opdCardVariants = {
-  initial: { opacity: 0, scale: 0.3 },
+  initial: { opacity: 0, scale: 1.4, boxShadow: "0 0 0px 0px rgba(99, 102, 241, 0)" },
   animate: (i: number) => ({
     opacity: 1,
     scale: 1,
+    boxShadow: [
+      "0 0 0px 0px rgba(99, 102, 241, 0)",
+      "0 0 40px 15px rgba(99, 102, 241, 0.5)",
+      "0 0 0px 0px rgba(99, 102, 241, 0)"
+    ],
     transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 15,
-      delay: i * 0.07,
+      scale: { type: "spring", stiffness: 300, damping: 20, delay: i * 0.07 },
+      opacity: { duration: 0.3, delay: i * 0.07 },
+      boxShadow: { duration: 1.2, delay: i * 0.07, ease: "easeOut" },
     }
   }),
   exit: {

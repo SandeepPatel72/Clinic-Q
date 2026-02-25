@@ -69,15 +69,19 @@ const DisplayCard: React.FC<DisplayCardProps> = ({ patient, size, position }) =>
 };
 
 const opdCardVariants = {
-  initial: { opacity: 0, scale: 0.5, y: 40 },
+  initial: { opacity: 0, scale: 1.4, boxShadow: "0 0 0px 0px rgba(99, 102, 241, 0)" },
   animate: {
     opacity: 1,
     scale: 1,
-    y: 0,
+    boxShadow: [
+      "0 0 0px 0px rgba(99, 102, 241, 0)",
+      "0 0 50px 20px rgba(99, 102, 241, 0.5)",
+      "0 0 0px 0px rgba(99, 102, 241, 0)"
+    ],
     transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 18,
+      scale: { type: "spring", stiffness: 300, damping: 20 },
+      opacity: { duration: 0.3 },
+      boxShadow: { duration: 1.5, ease: "easeOut" },
     }
   },
   exit: {
