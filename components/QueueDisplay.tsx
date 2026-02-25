@@ -242,7 +242,7 @@ const QueueDisplay: React.FC = () => {
       </div>
 
       <div className="flex-1 p-8 flex flex-col gap-8">
-        <div className="bg-orange-500 rounded-3xl shadow-xl overflow-hidden" style={{ minHeight: '340px' }}>
+        <div className="bg-orange-500 rounded-3xl shadow-xl overflow-hidden">
           <div className="bg-orange-600 px-8 py-2 flex items-center justify-between">
             <h2 className="text-3xl font-bold text-white uppercase tracking-wider">
               Currently in OPD
@@ -252,7 +252,7 @@ const QueueDisplay: React.FC = () => {
             </div>
           </div>
           
-          <div className="p-6">
+          <div className="p-6" style={{ minHeight: '380px' }}>
             {opdStatus.isPaused ? (
               <div className="bg-red-100 border-4 border-red-300 rounded-2xl p-8 text-center h-full flex flex-col items-center justify-center">
                 <div className="relative w-32 h-32 mx-auto mb-6 flex items-center justify-center">
