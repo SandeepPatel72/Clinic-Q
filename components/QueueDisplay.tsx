@@ -252,9 +252,9 @@ const QueueDisplay: React.FC = () => {
             </div>
           </div>
           
-          <div className="p-6" style={{ minHeight: '250px' }}>
+          <div className="p-6" style={{ height: '280px', overflow: 'hidden' }}>
             {opdStatus.isPaused ? (
-              <div className="bg-red-100 border-4 border-red-300 rounded-2xl p-12 text-center">
+              <div className="bg-red-100 border-4 border-red-300 rounded-2xl p-8 text-center h-full flex flex-col items-center justify-center">
                 <div className="relative w-32 h-32 mx-auto mb-6 flex items-center justify-center">
                   <div className="radar-wave-red absolute w-24 h-24 rounded-full border-4 border-red-400"></div>
                   <div className="radar-wave-red absolute w-24 h-24 rounded-full border-4 border-red-400" style={{animationDelay: '0.5s'}}></div>
@@ -269,7 +269,7 @@ const QueueDisplay: React.FC = () => {
                 <p className="text-2xl text-red-600 font-medium">{opdStatus.pauseReason}</p>
               </div>
             ) : opdPatients.length === 0 ? (
-              <div className="bg-emerald-100 border-4 border-emerald-300 rounded-2xl p-12 text-center">
+              <div className="bg-emerald-100 border-4 border-emerald-300 rounded-2xl p-8 text-center h-full flex flex-col items-center justify-center">
                 <div className="relative w-32 h-32 mx-auto mb-6 flex items-center justify-center">
                   <div className="radar-wave-green absolute w-24 h-24 rounded-full border-4 border-emerald-400"></div>
                   <div className="radar-wave-green absolute w-24 h-24 rounded-full border-4 border-emerald-400" style={{animationDelay: '0.5s'}}></div>
@@ -284,7 +284,7 @@ const QueueDisplay: React.FC = () => {
                 <p className="text-2xl text-emerald-600 font-medium">WAIT FOR YOUR TURN</p>
               </div>
             ) : (
-              <div className={`grid gap-6 ${opdPatients.length === 1 ? 'grid-cols-1 max-w-4xl mx-auto' : 'grid-cols-2'}`}>
+              <div className={`grid gap-6 h-full items-center ${opdPatients.length === 1 ? 'grid-cols-1 max-w-4xl mx-auto' : 'grid-cols-2'}`}>
                 <AnimatePresence mode="popLayout">
                   {opdPatients.map((patient) => (
                     <motion.div
@@ -371,13 +371,13 @@ const QueueDisplay: React.FC = () => {
             </h2>
           </div>
           
-          <div className="p-6" style={{ minHeight: '250px' }}>
+          <div className="p-6" style={{ height: '280px', overflow: 'hidden' }}>
             {waitingPatients.length === 0 ? (
-              <div className="bg-teal-100 rounded-2xl p-12 text-center">
+              <div className="bg-teal-100 rounded-2xl p-8 text-center h-full flex flex-col items-center justify-center">
                 <p className="text-2xl text-teal-600 font-semibold">No patients waiting</p>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-3 gap-6 h-full items-center">
                 <AnimatePresence mode="popLayout">
                   {waitingPatients.map((patient, index) => (
                     <motion.div
