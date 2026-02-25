@@ -252,7 +252,7 @@ const QueueDisplay: React.FC = () => {
             </div>
           </div>
           
-          <div className="p-6" style={{ height: '280px', overflow: 'hidden' }}>
+          <div className="p-6" style={{ minHeight: '290px' }}>
             {opdStatus.isPaused ? (
               <div className="bg-red-100 border-4 border-red-300 rounded-2xl p-8 text-center h-full flex flex-col items-center justify-center">
                 <div className="relative w-32 h-32 mx-auto mb-6 flex items-center justify-center">
@@ -371,7 +371,7 @@ const QueueDisplay: React.FC = () => {
             </h2>
           </div>
           
-          <div className="p-6" style={{ height: '280px', overflow: 'hidden' }}>
+          <div className="p-6" style={{ minHeight: '290px' }}>
             {waitingPatients.length === 0 ? (
               <div className="bg-teal-100 rounded-2xl p-8 text-center h-full flex flex-col items-center justify-center">
                 <p className="text-2xl text-teal-600 font-semibold">No patients waiting</p>
