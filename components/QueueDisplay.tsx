@@ -69,47 +69,50 @@ const DisplayCard: React.FC<DisplayCardProps> = ({ patient, size, position }) =>
 };
 
 const opdCardVariants = {
-  initial: { opacity: 0, scale: 1.4, boxShadow: "0 0 0px 0px rgba(99, 102, 241, 0)" },
+  initial: { opacity: 0, scale: 1.5, boxShadow: "0 0 0px 0px rgba(99, 102, 241, 0)" },
   animate: {
     opacity: 1,
     scale: 1,
     boxShadow: [
       "0 0 0px 0px rgba(99, 102, 241, 0)",
-      "0 0 50px 20px rgba(99, 102, 241, 0.5)",
+      "0 0 60px 25px rgba(99, 102, 241, 0.6)",
+      "0 0 30px 10px rgba(99, 102, 241, 0.3)",
       "0 0 0px 0px rgba(99, 102, 241, 0)"
     ],
     transition: {
-      scale: { type: "spring", stiffness: 300, damping: 20 },
-      opacity: { duration: 0.3 },
-      boxShadow: { duration: 1.5, ease: "easeOut" },
+      scale: { type: "spring", stiffness: 250, damping: 14, mass: 1.2 },
+      opacity: { duration: 0.25 },
+      boxShadow: { duration: 2, ease: "easeOut" },
     }
   },
   exit: {
     opacity: 0,
-    scale: 0.7,
-    x: -80,
-    transition: { duration: 0.4, ease: "easeIn" }
+    scale: 0.6,
+    x: -120,
+    rotate: -8,
+    transition: { type: "spring", stiffness: 200, damping: 20, mass: 0.8 }
   }
 };
 
 const waitingCardVariants = {
-  initial: { opacity: 0, y: 60, scale: 0.8 },
+  initial: { opacity: 0, y: -100, scale: 0.7 },
   animate: (i: number) => ({
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
       type: "spring",
-      stiffness: 300,
-      damping: 22,
-      delay: i * 0.1,
+      stiffness: 280,
+      damping: 18,
+      mass: 1.1,
+      delay: i * 0.12,
     }
   }),
   exit: {
     opacity: 0,
-    scale: 0.7,
-    y: -30,
-    transition: { duration: 0.3, ease: "easeIn" }
+    scale: 0.6,
+    y: 80,
+    transition: { type: "spring", stiffness: 300, damping: 25 }
   }
 };
 
