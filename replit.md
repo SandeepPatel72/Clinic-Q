@@ -36,7 +36,7 @@ Key features include:
   - Server-side role check ensures only Doctor role can execute the reset
   - Confirmation dialog before execution; page reloads after successful reset
 - 2026-02-08: Print Prescription Feature
-  - Added PRINT PRESCRIPTION button to Doctor Consultation Form (3-button layout: Print Prescription | Finalize | Close)
+  - Added PRINT PRESCRIPTION button to Doctor Consultation Form (4-button layout: Print | Print & Finalize (Shift+Enter) | Finalize (Ctrl+Enter) | Close)
   - Opens new browser tab with A5-sized printable prescription page including hospital header, patient info, vitals, complaints, diagnosis, prescription table, advice, follow-up date, and doctor signature line
   - All user data HTML-escaped for security; dates formatted in IST timezone
 - 2026-02-08: Follow-up Date Dropdown
@@ -44,6 +44,17 @@ Key features include:
   - Backend calculates actual follow-up date (today + selected days) in IST and stores as DATE
 - 2026-02-08: Timezone Fix — TIMESTAMP WITH TIME ZONE
   - All timestamp columns changed to TIMESTAMP WITH TIME ZONE; pg.Pool uses `-c timezone=Asia/Kolkata`
+- 2026-02-25: Subscription data moved from app_sett DB table to secretcred.json
+  - `/api/app-settings` now reads from JSON file instead of database
+- 2026-02-25: Framer Motion Card Animations
+  - Replaced all CSS keyframe animations (cardFlipIn, cardFlipOut, cardBounceIn) with Framer Motion
+  - Spring physics for realistic bounce on card enter (stiffness: 300, damping: 22)
+  - Dramatic bounce-in for OPD cards (stiffness: 400, damping: 15)
+  - Staggered entry: cards cascade in with 70ms delay between each
+  - Layout animations for smooth reordering on move up/down and drag-and-drop
+  - AnimatePresence handles exit animations natively (removed manual exitingIds tracking)
+  - All animations sync across Doctor and Operator panels via Socket.IO
+  - QueueDisplay (/display) also uses Framer Motion for OPD and waiting card animations
 
 ## External Dependencies
 - **React**: Frontend library.
@@ -54,3 +65,4 @@ Key features include:
 - **Node.js/Express**: Backend server.
 - **PostgreSQL**: Database for persistent storage.
 - **Socket.IO**: Real-time bidirectional event-based communication.
+- **Framer Motion**: Physics-based animation library for React card transitions.

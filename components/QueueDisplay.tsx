@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Patient, PatientStatus, PatientCategory } from '../types';
 import { Icons, TYPE_THEMES } from '../constants';
 
@@ -67,6 +68,47 @@ const DisplayCard: React.FC<DisplayCardProps> = ({ patient, size, position }) =>
   );
 };
 
+const opdCardVariants = {
+  initial: { opacity: 0, scale: 0.5, y: 40 },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 18,
+    }
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.7,
+    x: -80,
+    transition: { duration: 0.4, ease: "easeIn" }
+  }
+};
+
+const waitingCardVariants = {
+  initial: { opacity: 0, y: 60, scale: 0.8 },
+  animate: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 22,
+      delay: i * 0.1,
+    }
+  }),
+  exit: {
+    opacity: 0,
+    scale: 0.7,
+    y: -30,
+    transition: { duration: 0.3, ease: "easeIn" }
+  }
+};
+
 interface OpdStatusState {
   isPaused: boolean;
   pauseReason: string;
@@ -79,10 +121,6 @@ const QueueDisplay: React.FC = () => {
   const [hospitalName, setHospitalName] = useState<string>('');
   const [appName, setAppName] = useState<string>('Clinic-Q');
   const [opdStatus, setOpdStatus] = useState<OpdStatusState>({ isPaused: false, pauseReason: '' });
-  const [newOpdIds, setNewOpdIds] = useState<Set<string>>(new Set());
-  const [exitingOpdCards, setExitingOpdCards] = useState<Patient[]>([]);
-  const prevOpdIdsRef = useRef<Set<string>>(new Set());
-  const isFirstLoadRef = useRef(true);
 
   const fetchPatients = useCallback(async () => {
     try {
@@ -149,7 +187,6 @@ const QueueDisplay: React.FC = () => {
     fetchMetadata();
   }, []);
 
-  // Set dynamic page title
   useEffect(() => {
     document.title = `${appName} - Queue Display`;
   }, [appName]);
@@ -158,43 +195,6 @@ const QueueDisplay: React.FC = () => {
     .filter(p => p.status === PatientStatus.OPD)
     .sort((a, b) => (a.inTime || 0) - (b.inTime || 0))
     .slice(0, 2);
-
-  useEffect(() => {
-    const currentOpdIds = new Set(opdPatients.map(p => String(p.id)));
-    const prevIds = prevOpdIdsRef.current;
-
-    if (isFirstLoadRef.current && currentOpdIds.size > 0) {
-      isFirstLoadRef.current = false;
-      prevOpdIdsRef.current = currentOpdIds;
-      return;
-    }
-    isFirstLoadRef.current = false;
-
-    const added = new Set<string>();
-    currentOpdIds.forEach(id => {
-      if (!prevIds.has(id)) added.add(id);
-    });
-
-    const removedPatients: Patient[] = [];
-    prevIds.forEach(id => {
-      if (!currentOpdIds.has(id)) {
-        const prev = patients.find(p => p.id === id);
-        if (prev) removedPatients.push(prev);
-      }
-    });
-
-    if (added.size > 0) {
-      setNewOpdIds(added);
-      setTimeout(() => setNewOpdIds(new Set()), 2000);
-    }
-
-    if (removedPatients.length > 0) {
-      setExitingOpdCards(removedPatients);
-      setTimeout(() => setExitingOpdCards([]), 800);
-    }
-
-    prevOpdIdsRef.current = currentOpdIds;
-  }, [opdPatients]);
 
   const waitingPatients = patients
     .filter(p => p.status === PatientStatus.WAITING)
@@ -277,17 +277,21 @@ const QueueDisplay: React.FC = () => {
                 <p className="text-2xl text-emerald-600 font-medium">WAIT FOR YOUR TURN</p>
               </div>
             ) : (
-              <div className={`grid gap-6 ${(opdPatients.length + exitingOpdCards.length) === 1 ? 'grid-cols-1 max-w-4xl mx-auto' : 'grid-cols-2'}`}>
-                {exitingOpdCards.map((patient) => (
-                  <div key={`exit-${patient.id}`} className="display-card-exit">
-                    <DisplayCard patient={patient} size="large" />
-                  </div>
-                ))}
-                {opdPatients.map((patient) => (
-                  <div key={patient.id} className={newOpdIds.has(String(patient.id)) ? 'display-card-enter' : ''}>
-                    <DisplayCard patient={patient} size="large" />
-                  </div>
-                ))}
+              <div className={`grid gap-6 ${opdPatients.length === 1 ? 'grid-cols-1 max-w-4xl mx-auto' : 'grid-cols-2'}`}>
+                <AnimatePresence mode="popLayout">
+                  {opdPatients.map((patient) => (
+                    <motion.div
+                      key={patient.id}
+                      layout
+                      variants={opdCardVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                    >
+                      <DisplayCard patient={patient} size="large" />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             )}
           </div>
@@ -339,25 +343,6 @@ const QueueDisplay: React.FC = () => {
                 0% { transform: scale(1); opacity: 1; }
                 100% { transform: scale(1.8); opacity: 0; }
               }
-              @keyframes displayPulseGlow {
-                0% { transform: scale(0.85); opacity: 0; box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6); }
-                20% { transform: scale(1.04); opacity: 1; box-shadow: 0 0 30px 10px rgba(99, 102, 241, 0.5); }
-                40% { transform: scale(0.98); box-shadow: 0 0 10px 4px rgba(99, 102, 241, 0.3); }
-                60% { transform: scale(1.02); box-shadow: 0 0 25px 8px rgba(99, 102, 241, 0.4); }
-                80% { transform: scale(0.99); box-shadow: 0 0 8px 2px rgba(99, 102, 241, 0.2); }
-                100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 transparent; }
-              }
-              @keyframes displaySlideOut {
-                0% { transform: scale(1) translateX(0); opacity: 1; }
-                100% { transform: scale(0.8) translateX(-60px); opacity: 0; }
-              }
-              .display-card-enter {
-                animation: displayPulseGlow 1.8s ease-out forwards;
-                border-radius: 1rem;
-              }
-              .display-card-exit {
-                animation: displaySlideOut 0.7s ease-in forwards;
-              }
             `}</style>
           </div>
         )}
@@ -386,14 +371,25 @@ const QueueDisplay: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-6">
-                {waitingPatients.map((patient, index) => (
-                  <DisplayCard 
-                    key={patient.id} 
-                    patient={patient} 
-                    size="medium" 
-                    position={index + 1}
-                  />
-                ))}
+                <AnimatePresence mode="popLayout">
+                  {waitingPatients.map((patient, index) => (
+                    <motion.div
+                      key={patient.id}
+                      layout
+                      custom={index}
+                      variants={waitingCardVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                    >
+                      <DisplayCard 
+                        patient={patient} 
+                        size="medium" 
+                        position={index + 1}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             )}
           </div>

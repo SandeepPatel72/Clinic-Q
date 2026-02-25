@@ -1,6 +1,7 @@
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Patient, PatientStatus, PatientCategory, AppView } from '../types';
 import PatientCard from './PatientCard';
 
@@ -32,6 +33,46 @@ interface QueueColumnProps {
   onOpdStatusChange?: (isPaused: boolean, pauseReason: string) => void;
 }
 
+const cardVariants = {
+  initial: { opacity: 0, y: 50, scale: 0.85 },
+  animate: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 22,
+      delay: i * 0.07,
+    }
+  }),
+  exit: {
+    opacity: 0,
+    scale: 0.6,
+    y: -20,
+    transition: { duration: 0.3, ease: "easeIn" }
+  }
+};
+
+const opdCardVariants = {
+  initial: { opacity: 0, scale: 0.3 },
+  animate: (i: number) => ({
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 15,
+      delay: i * 0.07,
+    }
+  }),
+  exit: {
+    opacity: 0,
+    scale: 0.5,
+    transition: { duration: 0.25, ease: "easeIn" }
+  }
+};
+
 const QueueColumn: React.FC<QueueColumnProps> = ({ 
   title, 
   patients, 
@@ -60,43 +101,6 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
   const [localOptions, setLocalOptions] = useState<string[]>([]);
   const [loadingOptions, setLoadingOptions] = useState(false);
   const pausedButtonRef = useRef<HTMLButtonElement>(null);
-  const knownIdsRef = useRef<Set<string>>(new Set());
-  const isInitialRef = useRef(true);
-  const [newCardIds, setNewCardIds] = useState<Set<string>>(new Set());
-  const [exitingIds, setExitingIds] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    const currentIds = new Set(patients.map(p => p.id));
-    if (isInitialRef.current) {
-      knownIdsRef.current = currentIds;
-      isInitialRef.current = false;
-      return;
-    }
-    const newIds = new Set<string>();
-    currentIds.forEach((id: string) => {
-      if (!knownIdsRef.current.has(id)) {
-        newIds.add(id);
-      }
-    });
-    if (newIds.size > 0) {
-      setNewCardIds(newIds);
-      setTimeout(() => setNewCardIds(new Set()), 400);
-    }
-    knownIdsRef.current = currentIds;
-  }, [patients]);
-  
-  const handleAnimatedDelete = useCallback((id: string) => {
-    if (!onDelete) return;
-    setExitingIds(prev => new Set(prev).add(id));
-    setTimeout(() => {
-      setExitingIds(prev => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-      onDelete(id);
-    }, 550);
-  }, [onDelete]);
 
   const onDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -206,6 +210,8 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
     }
   };
 
+  const variants = status === PatientStatus.OPD ? opdCardVariants : cardVariants;
+
   return (
     <div 
       className={`flex flex-col h-full rounded-2xl border-2 shadow-inner transition-colors ${colorClass}`}
@@ -289,31 +295,40 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
             )}
           </div>
         ) : (
-          patients.map(p => (
-            <div 
-              key={p.id} 
-              className={`transition-all duration-200 w-full rounded-xl ${dragOverCardId === p.id ? 'bg-indigo-100 ring-2 ring-indigo-400 ring-offset-2' : ''} ${newCardIds.has(p.id) ? (status === PatientStatus.OPD ? 'card-enter-bounce' : 'card-enter') : ''} ${exitingIds.has(p.id) ? 'card-exit' : ''}`}
-              onDragOver={(e) => {
-                onDragOver(e);
-                setDragOverCardId(p.id);
-              }}
-              onDragLeave={() => setDragOverCardId(null)}
-              onDrop={(e) => handleCardDrop(e, p.id)}
-            >
-              <PatientCard 
-                patient={p} 
-                onUpdateStatus={onUpdateStatus} 
-                onDelete={onDelete ? handleAnimatedDelete : undefined} 
-                onEdit={onEdit}
-                onMove={onMove}
-                onClick={onCardClick}
-                onOpenChat={onOpenChat}
-                isActive={activeCardId === p.id}
-                isLarge={isLarge}
-                activeView={activeView}
-              />
-            </div>
-          ))
+          <AnimatePresence mode="popLayout">
+            {patients.map((p, index) => (
+              <motion.div
+                key={p.id}
+                layout
+                custom={index}
+                variants={variants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                layoutTransition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className={`w-full rounded-xl ${dragOverCardId === p.id ? 'bg-indigo-100 ring-2 ring-indigo-400 ring-offset-2' : ''}`}
+                onDragOver={(e: any) => {
+                  onDragOver(e);
+                  setDragOverCardId(p.id);
+                }}
+                onDragLeave={() => setDragOverCardId(null)}
+                onDrop={(e: any) => handleCardDrop(e, p.id)}
+              >
+                <PatientCard 
+                  patient={p} 
+                  onUpdateStatus={onUpdateStatus} 
+                  onDelete={onDelete} 
+                  onEdit={onEdit}
+                  onMove={onMove}
+                  onClick={onCardClick}
+                  onOpenChat={onOpenChat}
+                  isActive={activeCardId === p.id}
+                  isLarge={isLarge}
+                  activeView={activeView}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         )}
       </div>
       
