@@ -51,7 +51,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
 
   const isOPD = patient.status === PatientStatus.OPD;
   const isDoctorOPD = activeView === 'DOCTOR' && isOPD;
-  const activeClasses = isActive ? 'ring-4 ring-indigo-500 ring-offset-2 scale-[1.02] shadow-xl z-30' : 'hover:shadow-md';
+  const activeClasses = isActive ? 'animate-active-glow z-30' : 'hover:shadow-md';
   
   const isVisitorCategory = patient.category === PatientCategory.VISITOR;
   const themeClasses = TYPE_THEMES[patient.type] || 'bg-slate-50 border-slate-200';

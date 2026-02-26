@@ -24,6 +24,20 @@
     .animate-radium-glow {
       animation: borderGlow 2s infinite ease-in-out;
     }
+    @keyframes activeBorderGlow {
+      0%, 100% {
+        box-shadow: 0 0 8px rgba(99, 102, 241, 0.3), 0 0 2px rgba(99, 102, 241, 0.2);
+        border-color: rgba(99, 102, 241, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.7), 0 0 6px rgba(99, 102, 241, 0.4);
+        border-color: rgba(99, 102, 241, 0.9);
+      }
+    }
+    .animate-active-glow {
+      animation: activeBorderGlow 2s infinite ease-in-out;
+      border-color: rgba(99, 102, 241, 0.6);
+    }
     /* Smooth Scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
