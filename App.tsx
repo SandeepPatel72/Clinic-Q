@@ -1085,7 +1085,7 @@ const App: React.FC = () => {
         {currentPage === 'DASHBOARD' ? (
           <div ref={containerRef} className="flex w-full h-full relative" style={{ userSelect: isResizing ? 'none' : 'auto' }}>
             {/* LEFT COLUMN: WAITING QUEUE */}
-            <section className="h-full overflow-hidden flex-shrink-0" style={{ flexBasis: `${columnWidths.left}%`, width: `${columnWidths.left}%` }}>
+            <section className="h-full overflow-hidden flex-shrink-0" style={{ flexBasis: `calc(${columnWidths.left}% - ${columnWidths.left * 0.16}px)`, width: `calc(${columnWidths.left}% - ${columnWidths.left * 0.16}px)` }}>
               <QueueColumn 
                 title="WAITING QUEUE" 
                 patients={waitingPatients}
@@ -1122,7 +1122,7 @@ const App: React.FC = () => {
             </div>
 
             {/* CENTER COLUMN: OPD QUEUE + FORM */}
-            <section className="flex flex-col gap-3 h-full overflow-hidden flex-shrink-0" style={{ flexBasis: `${columnWidths.center}%`, width: `${columnWidths.center}%` }}>
+            <section className="flex flex-col gap-3 h-full overflow-hidden flex-shrink-0" style={{ flexBasis: `calc(${columnWidths.center}% - ${columnWidths.center * 0.16}px)`, width: `calc(${columnWidths.center}% - ${columnWidths.center * 0.16}px)` }}>
               {/* TOP: OPD QUEUE */}
               <div className="h-1/3 min-h-[180px]">
                 <QueueColumn 
@@ -1204,7 +1204,7 @@ const App: React.FC = () => {
             </div>
 
             {/* RIGHT COLUMN: COMPLETED OPD */}
-            <section className="h-full overflow-hidden flex-shrink-0" style={{ flexBasis: `${columnWidths.right}%`, width: `${columnWidths.right}%` }}>
+            <section className="h-full overflow-hidden flex-shrink-0" style={{ flexBasis: `calc(${columnWidths.right}% - ${columnWidths.right * 0.16}px)`, width: `calc(${columnWidths.right}% - ${columnWidths.right * 0.16}px)` }}>
               <QueueColumn 
                 title="COMPLETED OPD" 
                 patients={completedPatients}
