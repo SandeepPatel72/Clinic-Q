@@ -222,7 +222,7 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
-      <div className={`${headerColor} text-white px-5 py-4 rounded-t-[14px] font-black flex items-center justify-between shadow-sm z-10`}>
+      <div className={`${headerColor} text-white px-5 py-2 rounded-t-[14px] font-black flex items-center justify-between shadow-sm z-10`}>
         <div className="flex items-center gap-3">
           <span className="uppercase tracking-wider text-sm">{title}</span>
           {isOpdColumn && onOpdStatusChange && (
