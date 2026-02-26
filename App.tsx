@@ -1123,7 +1123,7 @@ const App: React.FC = () => {
             </div>
 
             {/* CENTER COLUMN: OPD QUEUE + FORM */}
-            <section className="flex flex-col gap-3 h-full overflow-hidden flex-shrink-0" style={{ flexBasis: `calc(${columnWidths.center}% - ${columnWidths.center * 0.16}px)`, width: `calc(${columnWidths.center}% - ${columnWidths.center * 0.16}px)` }}>
+            <section className={`flex flex-col ${isTablet ? 'gap-1' : 'gap-3'} h-full overflow-hidden flex-shrink-0`} style={{ flexBasis: `calc(${columnWidths.center}% - ${columnWidths.center * 0.16}px)`, width: `calc(${columnWidths.center}% - ${columnWidths.center * 0.16}px)` }}>
               {/* TOP: OPD QUEUE */}
               <div className={isOpdCollapsed ? 'shrink-0' : 'h-1/3 min-h-[180px]'}>
                 <QueueColumn 
@@ -1171,12 +1171,13 @@ const App: React.FC = () => {
                     </button>
                   )}
                 </div>
-                <div className="p-4 flex-1 overflow-y-auto">
+                <div className={`${isTablet ? 'p-2' : 'p-4'} flex-1 overflow-y-auto`}>
                   {activeView === 'OPERATOR' ? (
                     <PatientForm 
                       onSubmit={editingPatient ? (data) => updatePatient(editingPatient.id, data) : addPatient} 
                       initialData={editingPatient || undefined}
                       isEditing={!!editingPatient}
+                      isTablet={isTablet}
                     />
                   ) : (
                     <DoctorConsultationForm 

@@ -22,6 +22,7 @@ interface PatientFormProps {
   onSubmit: (data: PatientFormData) => void;
   initialData?: Patient;
   isEditing?: boolean;
+  isTablet?: boolean;
 }
 
 interface LookupPatient {
@@ -33,7 +34,7 @@ interface LookupPatient {
   mobile: string;
 }
 
-const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEditing }) => {
+const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEditing, isTablet }) => {
   const defaultData: PatientFormData = {
     name: '',
     age: 0,
@@ -215,18 +216,18 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
     ? PATIENT_TYPE_OPTIONS 
     : VISITOR_TYPE_OPTIONS;
 
-  const inputClasses = "w-full bg-white text-slate-900 border-2 border-slate-200 rounded-xl p-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all text-sm font-medium";
-  const labelClasses = "text-[12px] font-bold text-slate-500 uppercase tracking-widest ml-1";
-  const radioGroupClasses = "flex flex-wrap gap-2 p-1.5 bg-slate-100/50 border border-slate-200 rounded-xl";
-  const radioLabelClasses = "flex-1 min-w-[90px] flex items-center justify-center gap-2 cursor-pointer p-2 rounded-lg transition-all border-2 border-transparent has-[:checked]:border-indigo-600 has-[:checked]:bg-white has-[:checked]:shadow-sm";
-  const radioTextClasses = "text-slate-700 font-bold text-[11px] uppercase tracking-wider";
+  const inputClasses = `w-full bg-white text-slate-900 border-2 border-slate-200 rounded-xl ${isTablet ? 'p-2 text-xs' : 'p-3 text-sm'} focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium`;
+  const labelClasses = `${isTablet ? 'text-[10px] tracking-wide' : 'text-[12px] tracking-widest'} font-bold text-slate-500 uppercase ml-1`;
+  const radioGroupClasses = `flex flex-wrap gap-2 ${isTablet ? 'p-1' : 'p-1.5'} bg-slate-100/50 border border-slate-200 rounded-xl`;
+  const radioLabelClasses = `flex-1 ${isTablet ? 'min-w-[70px] p-1' : 'min-w-[90px] p-2'} flex items-center justify-center gap-2 cursor-pointer rounded-lg transition-all border-2 border-transparent has-[:checked]:border-indigo-600 has-[:checked]:bg-white has-[:checked]:shadow-sm`;
+  const radioTextClasses = `text-slate-700 font-bold ${isTablet ? 'text-[9px]' : 'text-[11px]'} uppercase tracking-wider`;
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <form ref={formRef} onSubmit={handleSubmit} className={`${isTablet ? 'space-y-2' : 'space-y-6'} max-w-2xl mx-auto`}>
+      <div className={`grid grid-cols-1 sm:grid-cols-2 ${isTablet ? 'gap-2' : 'gap-5'}`}>
         
         {/* Row 1: Mobile | Full Name */}
-        <div className="flex flex-col gap-2 relative" ref={lookupRef}>
+        <div className={`flex flex-col ${isTablet ? 'gap-1' : 'gap-2'} relative`} ref={lookupRef}>
           <label className={labelClasses}>Mobile (Optional)</label>
           <div className="flex gap-2">
             <input
@@ -291,7 +292,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
           )}
         </div>
 
-        <div className="flex flex-col gap-2 sm:col-span-1">
+        <div className={`flex flex-col ${isTablet ? 'gap-1' : 'gap-2'} sm:col-span-1`}>
           <label className={labelClasses}>Full Name</label>
           <input
             tabIndex={3}
@@ -305,7 +306,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
         </div>
 
         {/* Row 2: Age | Gender */}
-        <div className="flex flex-col gap-2">
+        <div className={`flex flex-col ${isTablet ? 'gap-1' : 'gap-2'}`}>
           <label className={labelClasses}>Age</label>
           <input
             tabIndex={4}
@@ -317,7 +318,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
           />
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className={`flex flex-col ${isTablet ? 'gap-1' : 'gap-2'}`}>
           <label className={labelClasses}>Gender</label>
           <div className={radioGroupClasses}>
             <label className={radioLabelClasses}>
@@ -348,7 +349,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
         </div>
 
         {/* Row 3: City (full width) - Custom Combo Box */}
-        <div className="flex flex-col gap-2 sm:col-span-2 relative" ref={cityRef}>
+        <div className={`flex flex-col ${isTablet ? 'gap-1' : 'gap-2'} sm:col-span-2 relative`} ref={cityRef}>
           <label className={labelClasses}>City / Location</label>
           <div className="relative">
             <input
@@ -426,7 +427,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
         </div>
 
         {/* Row 4: Primary Category (full width) */}
-        <div className="flex flex-col gap-2 sm:col-span-2">
+        <div className={`flex flex-col ${isTablet ? 'gap-1' : 'gap-2'} sm:col-span-2`}>
           <label className={labelClasses}>Primary Category</label>
           <div className={radioGroupClasses}>
             {CATEGORY_OPTIONS.map((cat, i) => (
@@ -447,7 +448,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
         </div>
 
         {/* Row 5: Entry Type (full width) */}
-        <div className="flex flex-col gap-2 sm:col-span-2">
+        <div className={`flex flex-col ${isTablet ? 'gap-1' : 'gap-2'} sm:col-span-2`}>
           <label className={labelClasses}>Entry Type</label>
           <div className={radioGroupClasses}>
             {currentTypeOptions.map((type, i) => (
@@ -469,12 +470,12 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
 
       </div>
 
-      <div className="flex gap-3">
+      <div className={`flex ${isTablet ? 'gap-2' : 'gap-3'}`}>
         <button
           tabIndex={13}
           type="button"
           onClick={() => setFormData(defaultData)}
-          className="flex-1 bg-slate-500 hover:bg-slate-600 text-white font-extrabold py-4 rounded-2xl shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center gap-3 text-base uppercase tracking-widest"
+          className={`flex-1 bg-slate-500 hover:bg-slate-600 text-white font-extrabold ${isTablet ? 'py-2 text-sm gap-1.5 rounded-xl' : 'py-4 text-base gap-3 rounded-2xl'} shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center uppercase tracking-widest`}
         >
           <Icons.X />
           Clear
@@ -482,7 +483,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
         <button
           tabIndex={14}
           type="submit"
-          className={`flex-[2] ${isEditing ? 'bg-amber-600' : 'bg-indigo-700'} text-white font-extrabold py-4 rounded-2xl shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center gap-3 text-base uppercase tracking-widest`}
+          className={`flex-[2] ${isEditing ? 'bg-amber-600' : 'bg-indigo-700'} text-white font-extrabold ${isTablet ? 'py-2 text-sm gap-1.5 rounded-xl' : 'py-4 text-base gap-3 rounded-2xl'} shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center uppercase tracking-widest`}
         >
           {isEditing ? <Icons.Edit /> : <Icons.CheckCircle />} 
           {isEditing ? 'Update Profile' : 'SAVE (Ctrl+Ent)'}
