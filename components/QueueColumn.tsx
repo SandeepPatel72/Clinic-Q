@@ -282,7 +282,7 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
         </span>
       </div>
       
-      <div className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 ${isTablet ? 'p-2 space-y-3' : 'p-3 space-y-4'}`}>
+      <div className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 ${isTablet ? 'p-1 space-y-2' : 'p-3 space-y-4'}`}>
         {isOpdColumn && opdStatus?.isPaused ? (
           <div className="h-full flex flex-col items-center justify-center py-8">
             <div className="bg-red-100 border-2 border-red-300 rounded-xl p-6 text-center max-w-md">
