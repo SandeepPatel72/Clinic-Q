@@ -264,7 +264,7 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
             </div>
           )}
         </div>
-        <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-mono border border-white/30">
+        <span className="bg-white/20 min-w-[36px] h-[36px] rounded-full text-xl font-bold font-mono border border-white/30 flex items-center justify-center">
           {patientCount}
         </span>
       </div>
