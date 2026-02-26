@@ -216,11 +216,11 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
     ? PATIENT_TYPE_OPTIONS 
     : VISITOR_TYPE_OPTIONS;
 
-  const inputClasses = `w-full bg-white text-slate-900 border-2 border-slate-200 rounded-xl ${isTablet ? 'p-2 text-xs' : 'p-3 text-sm'} focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium`;
-  const labelClasses = `${isTablet ? 'text-[10px] tracking-wide' : 'text-[12px] tracking-widest'} font-bold text-slate-500 uppercase ml-1`;
-  const radioGroupClasses = `flex flex-wrap gap-2 ${isTablet ? 'p-1' : 'p-1.5'} bg-slate-100/50 border border-slate-200 rounded-xl`;
-  const radioLabelClasses = `flex-1 ${isTablet ? 'min-w-[70px] p-1' : 'min-w-[90px] p-2'} flex items-center justify-center gap-2 cursor-pointer rounded-lg transition-all border-2 border-transparent has-[:checked]:border-indigo-600 has-[:checked]:bg-white has-[:checked]:shadow-sm`;
-  const radioTextClasses = `text-slate-700 font-bold ${isTablet ? 'text-[9px]' : 'text-[11px]'} uppercase tracking-wider`;
+  const inputClasses = `w-full bg-white text-slate-900 border-2 border-slate-200 rounded-xl ${isTablet ? 'p-2.5 text-sm' : 'p-3 text-sm'} focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium`;
+  const labelClasses = `${isTablet ? 'text-xs tracking-wide' : 'text-[12px] tracking-widest'} font-bold text-slate-500 uppercase ml-1`;
+  const radioGroupClasses = `flex flex-wrap gap-2 ${isTablet ? 'p-1.5' : 'p-1.5'} bg-slate-100/50 border border-slate-200 rounded-xl`;
+  const radioLabelClasses = `flex-1 ${isTablet ? 'min-w-[70px] p-1.5' : 'min-w-[90px] p-2'} flex items-center justify-center gap-2 cursor-pointer rounded-lg transition-all border-2 border-transparent has-[:checked]:border-indigo-600 has-[:checked]:bg-white has-[:checked]:shadow-sm`;
+  const radioTextClasses = `text-slate-700 font-bold ${isTablet ? 'text-[11px]' : 'text-[11px]'} uppercase tracking-wider`;
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className={`${isTablet ? 'space-y-2' : 'space-y-6'} max-w-2xl mx-auto`}>
@@ -475,7 +475,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
           tabIndex={13}
           type="button"
           onClick={() => setFormData(defaultData)}
-          className={`flex-1 bg-slate-500 hover:bg-slate-600 text-white font-extrabold ${isTablet ? 'py-2 text-sm gap-1.5 rounded-xl' : 'py-4 text-base gap-3 rounded-2xl'} shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center uppercase tracking-widest`}
+          className={`flex-1 bg-slate-500 hover:bg-slate-600 text-white font-extrabold ${isTablet ? 'py-2.5 text-sm gap-2 rounded-xl' : 'py-4 text-base gap-3 rounded-2xl'} shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center uppercase tracking-widest`}
         >
           <Icons.X />
           Clear
@@ -483,7 +483,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ onSubmit, initialData, isEdit
         <button
           tabIndex={14}
           type="submit"
-          className={`flex-[2] ${isEditing ? 'bg-amber-600' : 'bg-indigo-700'} text-white font-extrabold ${isTablet ? 'py-2 text-sm gap-1.5 rounded-xl' : 'py-4 text-base gap-3 rounded-2xl'} shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center uppercase tracking-widest`}
+          className={`flex-[2] ${isEditing ? 'bg-amber-600' : 'bg-indigo-700'} text-white font-extrabold ${isTablet ? 'py-2.5 text-sm gap-2 rounded-xl' : 'py-4 text-base gap-3 rounded-2xl'} shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center uppercase tracking-widest`}
         >
           {isEditing ? <Icons.Edit /> : <Icons.CheckCircle />} 
           {isEditing ? 'Update Profile' : 'SAVE (Ctrl+Ent)'}
