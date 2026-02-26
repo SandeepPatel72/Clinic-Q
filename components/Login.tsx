@@ -15,17 +15,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [hospitalName, setHospitalName] = useState('');
   const [appName, setAppName] = useState('Clinic-Q');
   const [numberOfDays, setNumberOfDays] = useState<number | null>(null);
+  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('clinicflow_rememberMe') === 'true');
 
   useEffect(() => {
     fetch('/api/metadata')
       .then(res => res.json())
       .then(data => {
-        if (data.hospitalName) {
-          setHospitalName(data.hospitalName);
-        }
-        if (data.appName) {
-          setAppName(data.appName);
-        }
+        if (data.hospitalName) setHospitalName(data.hospitalName);
+        if (data.appName) setAppName(data.appName);
       })
       .catch(() => {});
 
@@ -44,6 +41,24 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (rememberMe) {
+      const savedMobile = localStorage.getItem('clinicflow_savedMobile') || '';
+      const savedUsername = localStorage.getItem('clinicflow_savedUsername') || '';
+      if (savedMobile) setMobile(savedMobile);
+      if (savedUsername) setUsername(savedUsername);
+    }
+  }, []);
+
+  const handleRememberToggle = (checked: boolean) => {
+    setRememberMe(checked);
+    localStorage.setItem('clinicflow_rememberMe', String(checked));
+    if (!checked) {
+      localStorage.removeItem('clinicflow_savedMobile');
+      localStorage.removeItem('clinicflow_savedUsername');
+    }
+  };
 
   const isExpired = numberOfDays !== null && numberOfDays < 1;
   const showWarning = numberOfDays !== null && numberOfDays >= 1 && numberOfDays <= 30;
@@ -67,6 +82,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         if (data.token) {
           localStorage.setItem('clinicflow_authToken', data.token);
         }
+        if (rememberMe) {
+          localStorage.setItem('clinicflow_savedMobile', mobile);
+          localStorage.setItem('clinicflow_savedUsername', username);
+        } else {
+          localStorage.removeItem('clinicflow_savedMobile');
+          localStorage.removeItem('clinicflow_savedUsername');
+        }
         onLogin(data.role as AppView);
       } else {
         setError(data.error || 'Invalid credentials');
@@ -78,6 +100,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
   };
 
+  const inputClass = (expired: boolean) =>
+    `w-full border-2 rounded-2xl p-4 outline-none transition-all font-bold ${
+      expired
+        ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+        : 'bg-slate-50 border-slate-100 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 text-slate-700'
+    }`;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-indigo-700 px-4">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-10 space-y-8">
@@ -86,10 +115,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           {hospitalName && (
             <p className="mt-1 text-indigo-600 font-bold uppercase tracking-wider text-lg">{hospitalName}</p>
           )}
-         
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" autoComplete="on">
           {error && (
             <div className="bg-rose-50 border-2 border-rose-200 text-rose-600 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wide text-center">
               {error}
@@ -100,12 +128,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile Number</label>
             <input
               type="tel"
+              name="mobile"
               inputMode="numeric"
               pattern="[0-9]*"
+              autoComplete="tel"
               required
               autoFocus
               disabled={isExpired}
-              className={`w-full border-2 rounded-2xl p-4 outline-none transition-all font-bold ${isExpired ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border-slate-100 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 text-slate-700'}`}
+              className={inputClass(isExpired)}
               placeholder="Enter Mobile Number"
               value={mobile}
               onChange={(e) => setMobile(e.target.value.replace(/[^0-9]/g, ''))}
@@ -116,9 +146,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Username</label>
             <input
               type="text"
+              name="username"
+              autoComplete="username"
               required
               disabled={isExpired}
-              className={`w-full border-2 rounded-2xl p-4 outline-none transition-all font-bold ${isExpired ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border-slate-100 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 text-slate-700'}`}
+              className={inputClass(isExpired)}
               placeholder="Enter Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -129,14 +161,37 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
             <input
               type="password"
+              name="password"
+              autoComplete="current-password"
               required
               disabled={isExpired}
-              className={`w-full border-2 rounded-2xl p-4 outline-none transition-all font-bold ${isExpired ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border-slate-100 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 text-slate-700'}`}
+              className={inputClass(isExpired)}
               placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+
+          <label className="flex items-center gap-2.5 cursor-pointer select-none group">
+            <div className="relative flex items-center justify-center">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => handleRememberToggle(e.target.checked)}
+                className="sr-only"
+              />
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${rememberMe ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300 group-hover:border-indigo-400'}`}>
+                {rememberMe && (
+                  <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2 6l3 3 5-5" />
+                  </svg>
+                )}
+              </div>
+            </div>
+            <span className="text-xs font-semibold text-slate-500 group-hover:text-slate-700 transition-colors">
+              Remember mobile &amp; username
+            </span>
+          </label>
 
           <button
             type="submit"
