@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Patient, PatientStatus, PatientCategory, AppView } from '../types';
 import PatientCard from './PatientCard';
+import { Icons } from '../constants';
 
 interface OpdStatusState {
   isPaused: boolean;
@@ -32,6 +33,9 @@ interface QueueColumnProps {
   opdStatusOptions?: string[];
   onOpdStatusChange?: (isPaused: boolean, pauseReason: string) => void;
   isTablet?: boolean;
+  isCollapsible?: boolean;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 const cardVariants = {
@@ -99,7 +103,10 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
   opdStatus,
   opdStatusOptions,
   onOpdStatusChange,
-  isTablet
+  isTablet,
+  isCollapsible,
+  isCollapsed,
+  onToggleCollapse,
 }) => {
   const [dragOverCardId, setDragOverCardId] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -277,12 +284,40 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
             </div>
           )}
         </div>
-        <span className={`bg-white/20 rounded-full font-bold font-mono border border-white/30 flex items-center justify-center ${isTablet ? 'min-w-[22px] h-[22px] text-xs' : 'min-w-[36px] h-[36px] text-xl'}`}>
-          {patientCount}
-        </span>
+        <div className="flex items-center gap-1.5">
+          {isCollapsible && (
+            <button
+              onClick={onToggleCollapse}
+              className="bg-white/20 hover:bg-white/35 active:bg-white/50 rounded-full p-0.5 transition-colors flex items-center justify-center"
+              title={isCollapsed ? 'Expand OPD Queue' : 'Collapse OPD Queue'}
+            >
+              <motion.span
+                animate={{ rotate: isCollapsed ? 180 : 0 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                className="flex items-center justify-center w-4 h-4"
+              >
+                <Icons.ChevronUp className="w-3.5 h-3.5" />
+              </motion.span>
+            </button>
+          )}
+          <span className={`bg-white/20 rounded-full font-bold font-mono border border-white/30 flex items-center justify-center ${isTablet ? 'min-w-[22px] h-[22px] text-xs' : 'min-w-[36px] h-[36px] text-xl'}`}>
+            {patientCount}
+          </span>
+        </div>
       </div>
       
-      <div className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 ${isTablet ? 'p-1 space-y-2' : 'p-3 space-y-4'}`}>
+      <AnimatePresence initial={false}>
+      {!isCollapsed && (
+      <motion.div
+        key="opd-content"
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: 'auto', opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        transition={{ duration: 0.22, ease: 'easeInOut' }}
+        style={{ overflow: 'hidden' }}
+        className="flex-1 min-h-0"
+      >
+      <div className={`h-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 ${isTablet ? 'p-1 space-y-2' : 'p-3 space-y-4'}`}>
         {isOpdColumn && opdStatus?.isPaused ? (
           <div className="h-full flex flex-col items-center justify-center py-8">
             <div className="bg-red-100 border-2 border-red-300 rounded-xl p-6 text-center max-w-md">
@@ -350,6 +385,9 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
           </AnimatePresence>
         )}
       </div>
+      </motion.div>
+      )}
+      </AnimatePresence>
       
       {showDropdown && !opdStatus?.isPaused && createPortal(
         <>

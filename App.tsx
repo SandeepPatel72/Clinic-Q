@@ -90,6 +90,7 @@ const App: React.FC = () => {
     return defaultWidths;
   });
   const [isResizing, setIsResizing] = useState<'left' | 'right' | null>(null);
+  const [isOpdCollapsed, setIsOpdCollapsed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
   const alertSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -1124,7 +1125,7 @@ const App: React.FC = () => {
             {/* CENTER COLUMN: OPD QUEUE + FORM */}
             <section className="flex flex-col gap-3 h-full overflow-hidden flex-shrink-0" style={{ flexBasis: `calc(${columnWidths.center}% - ${columnWidths.center * 0.16}px)`, width: `calc(${columnWidths.center}% - ${columnWidths.center * 0.16}px)` }}>
               {/* TOP: OPD QUEUE */}
-              <div className="h-1/3 min-h-[180px]">
+              <div className={isOpdCollapsed ? 'shrink-0' : 'h-1/3 min-h-[180px]'}>
                 <QueueColumn 
                   title="OPD (CONSULTATION)" 
                   patients={opdPatients}
@@ -1145,6 +1146,9 @@ const App: React.FC = () => {
                   opdStatusOptions={opdStatusOptions}
                   onOpdStatusChange={updateOpdStatus}
                   isTablet={isTablet}
+                  isCollapsible={isTablet && activeView === 'OPERATOR'}
+                  isCollapsed={isOpdCollapsed}
+                  onToggleCollapse={() => setIsOpdCollapsed(v => !v)}
                 />
               </div>
               
