@@ -17,8 +17,10 @@
     "pg": "^8.17.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "sharp": "^0.34.5",
     "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.3"
+    "socket.io-client": "^4.8.3",
+    "vite-plugin-pwa": "^1.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

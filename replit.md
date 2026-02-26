@@ -55,6 +55,13 @@ Key features include:
   - AnimatePresence handles exit animations natively (removed manual exitingIds tracking)
   - All animations sync across Doctor and Operator panels via Socket.IO
   - QueueDisplay (/display) also uses Framer Motion for OPD and waiting card animations
+- 2026-02-26: PWA (Progressive Web App) Support
+  - App installable as home screen / desktop shortcut via browser "Add to Home Screen" or "Install" prompt
+  - Custom icon: indigo gradient (#4338ca → #6366f1) rounded square with white Q+ symbol, generated as PNG at 512×512, 192×192, 180×180 (Apple Touch Icon)
+  - Standalone display mode (no browser bar) with landscape orientation on install
+  - Service worker (Workbox generateSW): cache-first for static assets, network-first for /api/, network-only for /socket.io/
+  - Theme color: #4338ca — colors the browser/OS chrome on mobile
+  - Files: `public/icons/`, `vite.config.ts` (vite-plugin-pwa), `index.html` (PWA meta tags), `scripts/generate-icons.cjs`
 - 2026-02-26: Tablet Support (11-12" devices, 768-1400px width)
   - `hooks/useIsTablet.ts` hook detects tablet via width range + touch capability
   - Header, nav buttons, search bar scaled down for tablet; desktop unchanged
