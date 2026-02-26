@@ -250,7 +250,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
         </div>
       )}
 
-      <div className={`flex items-start ${isOPD ? 'gap-2 p-2' : isLarge ? 'gap-4 p-8' : (patient.status === PatientStatus.WAITING || patient.status === PatientStatus.COMPLETED) ? `gap-2 ${isTablet ? 'p-2' : 'p-3'}` : 'gap-3 p-4'}`}>
+      <div className={`flex items-start ${isOPD ? 'gap-2 p-2' : isLarge ? 'gap-4 p-8' : (patient.status === PatientStatus.WAITING || patient.status === PatientStatus.COMPLETED) ? `gap-2 ${isTablet ? 'p-1' : 'p-3'}` : 'gap-3 p-4'}`}>
         
         <div className={`flex flex-col items-center flex-shrink-0 ${isOPD ? 'gap-1' : (patient.status === PatientStatus.WAITING || patient.status === PatientStatus.COMPLETED) ? '' : 'gap-3'}`}>
           <div className={`rounded-full overflow-hidden shadow-sm transition-all ${isOPD ? (isTablet ? 'w-10 h-10' : 'w-14 h-14') : isLarge ? 'w-28 h-28' : patient.status === PatientStatus.COMPLETED ? (isTablet ? 'w-9 h-9' : 'w-12 h-12') : patient.status === PatientStatus.WAITING ? (isTablet ? 'w-10 h-10' : 'w-14 h-14') : 'w-16 h-16'}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
@@ -456,15 +456,15 @@ const PatientCard: React.FC<PatientCardProps> = ({
           </div>
         </div>
         ) : (
-        <div className="border-t border-slate-100 bg-slate-50/50 flex items-center justify-between px-4 py-2 transition-all group-hover:bg-white min-h-[48px]">
+        <div className={`border-t border-slate-100 bg-slate-50/50 flex items-center justify-between transition-all group-hover:bg-white ${isTablet ? 'px-1.5 py-0.5 min-h-[30px]' : 'px-4 py-2 min-h-[48px]'}`}>
           <div className="flex items-center gap-1"></div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
+          <div className={`flex items-center ${isTablet ? 'gap-1' : 'gap-4'}`}>
+            <div className={`flex items-center ${isTablet ? 'gap-0.5' : 'gap-2'}`}>
               {patient.status !== PatientStatus.OPD && (
                 <button 
                   onClick={(e) => { e.stopPropagation(); onUpdateStatus(patient.id, PatientStatus.OPD); }} 
-                  className="text-amber-600 hover:text-amber-700 transition-colors p-1.5 hover:bg-amber-50 rounded-lg flex items-center gap-1" 
+                  className={`text-amber-600 hover:text-amber-700 transition-colors hover:bg-amber-50 rounded-lg flex items-center gap-1 ${isTablet ? 'p-0.5' : 'p-1.5'}`}
                   title="Send to OPD"
                 >
                   <Icons.Stethoscope />
@@ -473,7 +473,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
               {patient.status !== PatientStatus.COMPLETED && (
                 <button 
                   onClick={(e) => { e.stopPropagation(); onUpdateStatus(patient.id, PatientStatus.COMPLETED); }} 
-                  className="text-emerald-600 hover:text-emerald-700 transition-colors p-1.5 hover:bg-emerald-50 rounded-lg" 
+                  className={`text-emerald-600 hover:text-emerald-700 transition-colors hover:bg-emerald-50 rounded-lg ${isTablet ? 'p-0.5' : 'p-1.5'}`}
                   title="Mark Done"
                 >
                   <Icons.CheckCircle />
@@ -481,11 +481,11 @@ const PatientCard: React.FC<PatientCardProps> = ({
               )}
             </div>
 
-            <div className="w-[1px] h-5 bg-slate-200"></div>
+            <div className={`w-[1px] bg-slate-200 ${isTablet ? 'h-3' : 'h-5'}`}></div>
 
             <button 
               onClick={handleChatClick} 
-              className={`transition-all relative p-1.5 rounded-lg hover:bg-indigo-50 ${patient.hasUnreadAlert ? 'text-rose-600' : 'text-indigo-600'}`} 
+              className={`transition-all relative rounded-lg hover:bg-indigo-50 ${isTablet ? 'p-0.5' : 'p-1.5'} ${patient.hasUnreadAlert ? 'text-rose-600' : 'text-indigo-600'}`}
               title="Discussion"
             >
               <Icons.Message />
@@ -497,11 +497,11 @@ const PatientCard: React.FC<PatientCardProps> = ({
               )}
             </button>
 
-            <div className="w-[1px] h-5 bg-slate-200"></div>
+            <div className={`w-[1px] bg-slate-200 ${isTablet ? 'h-3' : 'h-5'}`}></div>
 
-            <div className="flex items-center gap-1">
-              {onEdit && <button onClick={(e) => { e.stopPropagation(); onEdit(patient); }} className="text-slate-400 hover:text-slate-700 transition-colors p-1.5 rounded-md hover:bg-slate-100" title="Edit"><Icons.Edit /></button>}
-              {onDelete && <button onClick={handleDeleteClick} className="text-slate-300 hover:text-rose-600 transition-colors p-1.5 rounded-md hover:bg-rose-50" title="Delete"><Icons.Trash /></button>}
+            <div className={`flex items-center ${isTablet ? 'gap-0.5' : 'gap-1'}`}>
+              {onEdit && <button onClick={(e) => { e.stopPropagation(); onEdit(patient); }} className={`text-slate-400 hover:text-slate-700 transition-colors rounded-md hover:bg-slate-100 ${isTablet ? 'p-0.5' : 'p-1.5'}`} title="Edit"><Icons.Edit /></button>}
+              {onDelete && <button onClick={handleDeleteClick} className={`text-slate-300 hover:text-rose-600 transition-colors rounded-md hover:bg-rose-50 ${isTablet ? 'p-0.5' : 'p-1.5'}`} title="Delete"><Icons.Trash /></button>}
             </div>
           </div>
         </div>

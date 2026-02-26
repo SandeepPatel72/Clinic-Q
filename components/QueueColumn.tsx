@@ -235,7 +235,7 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
       onDrop={onDrop}
       data-queue-status={status}
     >
-      <div className={`${headerColor} text-white rounded-t-[14px] font-black flex items-center justify-between shadow-sm z-10 ${isTablet ? 'px-3 py-1.5' : 'px-5 py-2'}`}>
+      <div className={`${headerColor} text-white rounded-t-[14px] font-black flex items-center justify-between shadow-sm z-10 ${isTablet ? 'px-2 py-1' : 'px-5 py-2'}`}>
         <div className={`flex items-center ${isTablet ? 'gap-2' : 'gap-3'}`}>
           <span className={`uppercase tracking-wider ${isTablet ? 'text-xs' : 'text-sm'}`}>{title}</span>
           {isOpdColumn && onOpdStatusChange && (
@@ -277,7 +277,7 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
             </div>
           )}
         </div>
-        <span className={`bg-white/20 rounded-full font-bold font-mono border border-white/30 flex items-center justify-center ${isTablet ? 'min-w-[28px] h-[28px] text-base' : 'min-w-[36px] h-[36px] text-xl'}`}>
+        <span className={`bg-white/20 rounded-full font-bold font-mono border border-white/30 flex items-center justify-center ${isTablet ? 'min-w-[22px] h-[22px] text-xs' : 'min-w-[36px] h-[36px] text-xl'}`}>
           {patientCount}
         </span>
       </div>
