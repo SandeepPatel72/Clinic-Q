@@ -351,8 +351,12 @@ To add or modify users, edit the `secretcred.json` file:
 | **Doctor Consultation Form** | Structured consultation with vitals, tag-based complaints/diagnosis, prescription table, advice, and follow-up date |
 | **Print Prescription** | Generate printable A5-sized prescription from consultation data |
 | **Data Reset** | Doctor can reset all patient/visit data from Report page (controlled via metadata.json) |
-| **License Management** | Login page shows subscription expiry warning based on app_sett table |
+| **License Management** | Login page shows subscription expiry warning based on secretcred.json subscription field |
 | **Auto-complete Tags** | Complaints, diagnosis, and medicine names auto-suggest from usage history |
+| **PWA Support** | Install as home screen / desktop shortcut (Android, iOS, Windows) |
+| **Tablet Support** | Touch-optimized UI for 11-12" tablets with touch drag-and-drop |
+| **Framer Motion Animations** | Physics-based card animations with spring bounce and smooth reordering |
+| **Remember Me** | Login saves mobile and username for faster access on tablets/phones |
 
 ### Configuration Files
 
@@ -714,4 +718,4 @@ If you encounter issues not covered in this guide, check:
 
 ---
 
-**Clinic-Q v1.50** | Last Updated: February 8, 2026
+**Clinic-Q v1.50** | Last Updated: February 26, 2026

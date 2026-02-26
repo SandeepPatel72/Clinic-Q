@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Docker secrets - never commit these
+docker.env
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

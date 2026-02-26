@@ -314,59 +314,24 @@ sudo systemctl restart nginx
 
 ### Option 3: Docker Deployment
 
-Create a `Dockerfile`:
-```dockerfile
-FROM node:18-alpine
+The project includes a production-ready `Dockerfile` and `docker-compose.yml`. See **[DEPLOY.md](./DEPLOY.md)** for the complete 5-step guide.
 
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm install
-
-COPY . .
-RUN npm run build
-
-ENV NODE_ENV=production
-ENV PORT=5000
-EXPOSE 5000
-
-CMD ["node", "server.js"]
-```
-
-Create `docker-compose.yml`:
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - DATABASE_URL=postgresql://clinicq:password@db:5432/clinicq
-      - PORT=5000
-    depends_on:
-      - db
-    restart: unless-stopped
-
-  db:
-    image: postgres:14-alpine
-    environment:
-      - POSTGRES_USER=clinicq
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=clinicq
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database_schema.sql:/docker-entrypoint-initdb.d/init.sql
-    restart: unless-stopped
-
-volumes:
-  postgres_data:
-```
-
-Run with Docker:
+Quick summary:
 ```bash
-docker-compose up -d
+# 1. Copy and configure environment
+cp docker.env.example docker.env
+# Edit docker.env: set DB_PASSWORD
+
+# 2. Edit secretcred.json (usernames/passwords/subscription dates)
+# 3. Edit metadata.json (hospital name)
+
+# 4. Build and start
+docker compose up -d --build
 ```
+
+App will be available at `http://your-server-ip:3001`
+
+The `docker-compose.yml` uses `docker.env` for configuration — no hardcoded passwords.
 
 ---
 
@@ -519,4 +484,4 @@ clinic-q/
 ---
 
 **Version:** 1.50  
-**Last Updated:** February 8, 2026
+**Last Updated:** February 26, 2026
