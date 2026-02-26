@@ -161,7 +161,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
 
         <div className={`flex-1 min-w-0 flex flex-col ${isOPD ? 'justify-center' : 'pt-0.5'}`}>
           <div className="flex items-center gap-2 mb-1">
-            <h4 className={`truncate uppercase tracking-tight leading-tight flex-1 ${isOPD ? 'text-2xl font-bold' : isLarge ? 'text-5xl font-extrabold' : 'text-[1.5rem] font-bold'}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
+            <h4 className={`truncate uppercase tracking-tight leading-tight flex-1 ${isOPD ? 'text-3xl font-bold' : isLarge ? 'text-5xl font-extrabold' : 'text-[1.5rem] font-bold'}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
               {!isVisitorCategory ? (
                 <><span className="text-[maroon]">[{patient.queueId}]</span> <span className="text-slate-900">{patient.name}</span></>
               ) : (
@@ -191,7 +191,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
               {patient.age} Years ({patient.gender})
             </div>
           ) : (
-            <div className="font-semibold text-slate-600 truncate text-xl">
+            <div className="font-semibold text-slate-600 truncate text-2xl">
               {patient.city && (
                 <><span className="font-black text-slate-900">{patient.city}</span><span className="mx-1.5 text-slate-300">|</span></>
               )}
