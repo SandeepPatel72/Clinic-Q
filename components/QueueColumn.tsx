@@ -31,6 +31,7 @@ interface QueueColumnProps {
   opdStatus?: OpdStatusState;
   opdStatusOptions?: string[];
   onOpdStatusChange?: (isPaused: boolean, pauseReason: string) => void;
+  isTablet?: boolean;
 }
 
 const cardVariants = {
@@ -97,7 +98,8 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
   isOpdColumn,
   opdStatus,
   opdStatusOptions,
-  onOpdStatusChange
+  onOpdStatusChange,
+  isTablet
 }) => {
   const [dragOverCardId, setDragOverCardId] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -205,6 +207,16 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
     }
   }, [showDropdown]);
 
+  useEffect(() => {
+    if (!onReorder) return;
+    const handler = (e: Event) => {
+      const { sourceId, targetId } = (e as CustomEvent).detail;
+      onReorder(sourceId, targetId);
+    };
+    window.addEventListener('touch-reorder', handler);
+    return () => window.removeEventListener('touch-reorder', handler);
+  }, [onReorder]);
+
   const handleSelectPauseReason = (e: React.MouseEvent, reason: string) => {
     e.preventDefault();
     e.stopPropagation();
@@ -221,17 +233,18 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
       className={`flex flex-col h-full rounded-2xl border-2 shadow-inner transition-colors ${colorClass}`}
       onDragOver={onDragOver}
       onDrop={onDrop}
+      data-queue-status={status}
     >
-      <div className={`${headerColor} text-white px-5 py-2 rounded-t-[14px] font-black flex items-center justify-between shadow-sm z-10`}>
-        <div className="flex items-center gap-3">
-          <span className="uppercase tracking-wider text-sm">{title}</span>
+      <div className={`${headerColor} text-white rounded-t-[14px] font-black flex items-center justify-between shadow-sm z-10 ${isTablet ? 'px-3 py-1.5' : 'px-5 py-2'}`}>
+        <div className={`flex items-center ${isTablet ? 'gap-2' : 'gap-3'}`}>
+          <span className={`uppercase tracking-wider ${isTablet ? 'text-xs' : 'text-sm'}`}>{title}</span>
           {isOpdColumn && onOpdStatusChange && (
             <div className="relative flex items-center gap-2">
               <div className="flex rounded-lg overflow-hidden shadow-md border border-white/30">
                 <button
                   onClick={handleRunningClick}
                   className={`
-                    px-3 py-1.5 text-xs font-bold uppercase tracking-wide
+                    ${isTablet ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs'} font-bold uppercase tracking-wide
                     transition-all duration-200 flex items-center gap-1.5
                     ${!opdStatus?.isPaused 
                       ? 'bg-emerald-500 text-white' 
@@ -246,7 +259,7 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
                   ref={pausedButtonRef}
                   onClick={handlePausedClick}
                   className={`
-                    px-3 py-1.5 text-xs font-bold uppercase tracking-wide
+                    ${isTablet ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs'} font-bold uppercase tracking-wide
                     transition-all duration-200 flex items-center gap-1.5
                     ${opdStatus?.isPaused 
                       ? 'bg-red-500 text-white' 
@@ -264,12 +277,12 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
             </div>
           )}
         </div>
-        <span className="bg-white/20 min-w-[36px] h-[36px] rounded-full text-xl font-bold font-mono border border-white/30 flex items-center justify-center">
+        <span className={`bg-white/20 rounded-full font-bold font-mono border border-white/30 flex items-center justify-center ${isTablet ? 'min-w-[28px] h-[28px] text-base' : 'min-w-[36px] h-[36px] text-xl'}`}>
           {patientCount}
         </span>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-3 space-y-4 scrollbar-thin scrollbar-thumb-slate-300">
+      <div className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 ${isTablet ? 'p-2 space-y-3' : 'p-3 space-y-4'}`}>
         {isOpdColumn && opdStatus?.isPaused ? (
           <div className="h-full flex flex-col items-center justify-center py-8">
             <div className="bg-red-100 border-2 border-red-300 rounded-xl p-6 text-center max-w-md">
@@ -311,6 +324,7 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
                 exit="exit"
                 layoutTransition={{ type: "spring", stiffness: 400, damping: 30 }}
                 className={`w-full rounded-xl ${dragOverCardId === p.id ? 'bg-indigo-100 ring-2 ring-indigo-400 ring-offset-2' : ''}`}
+                data-patient-id={p.id}
                 onDragOver={(e: any) => {
                   onDragOver(e);
                   setDragOverCardId(p.id);
@@ -329,6 +343,7 @@ const QueueColumn: React.FC<QueueColumnProps> = ({
                   isActive={activeCardId === p.id}
                   isLarge={isLarge}
                   activeView={activeView}
+                  isTablet={isTablet}
                 />
               </motion.div>
             ))}

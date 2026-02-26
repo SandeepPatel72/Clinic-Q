@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Patient, PatientStatus, PatientCategory, PatientType, AppView } from '../types';
 import { Icons, TYPE_THEMES } from '../constants';
 
@@ -14,6 +14,7 @@ interface PatientCardProps {
   isActive?: boolean;
   isLarge?: boolean;
   activeView?: AppView;
+  isTablet?: boolean;
 }
 
 const PatientCard: React.FC<PatientCardProps> = ({ 
@@ -26,16 +27,113 @@ const PatientCard: React.FC<PatientCardProps> = ({
   onOpenChat,
   isActive,
   isLarge,
-  activeView
+  activeView,
+  isTablet
 }) => {
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const dragCloneRef = useRef<HTMLDivElement | null>(null);
+  const isDraggingRef = useRef(false);
 
   const handleDragStart = (e: React.DragEvent) => {
     if (onClick) return;
     e.dataTransfer.setData('patientId', patient.id);
     e.dataTransfer.effectAllowed = 'move';
   };
+
+  const canTouchDrag = isTablet && !onClick && activeView === 'OPERATOR';
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!canTouchDrag) return;
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+    isDraggingRef.current = false;
+  }, [canTouchDrag]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!canTouchDrag || !touchStartRef.current) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - touchStartRef.current.x;
+    const dy = touch.clientY - touchStartRef.current.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (!isDraggingRef.current && dist > 10) {
+      isDraggingRef.current = true;
+      const card = (e.currentTarget as HTMLElement);
+      const rect = card.getBoundingClientRect();
+      const clone = document.createElement('div');
+      clone.style.position = 'fixed';
+      clone.style.width = rect.width + 'px';
+      clone.style.height = rect.height + 'px';
+      clone.style.left = touch.clientX - rect.width / 2 + 'px';
+      clone.style.top = touch.clientY - rect.height / 2 + 'px';
+      clone.style.zIndex = '9999';
+      clone.style.opacity = '0.85';
+      clone.style.pointerEvents = 'none';
+      clone.style.borderRadius = '1rem';
+      clone.style.boxShadow = '0 8px 32px rgba(0,0,0,0.25)';
+      clone.style.transform = 'scale(0.95)';
+      clone.style.transition = 'transform 0.1s';
+      clone.innerHTML = card.innerHTML;
+      clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+      clone.querySelectorAll('[data-patient-id]').forEach(el => el.removeAttribute('data-patient-id'));
+      document.body.appendChild(clone);
+      dragCloneRef.current = clone;
+      card.style.opacity = '0.3';
+    }
+
+    if (isDraggingRef.current && dragCloneRef.current) {
+      e.preventDefault();
+      const clone = dragCloneRef.current;
+      const w = parseFloat(clone.style.width);
+      const h = parseFloat(clone.style.height);
+      clone.style.left = touch.clientX - w / 2 + 'px';
+      clone.style.top = touch.clientY - h / 2 + 'px';
+    }
+  }, [canTouchDrag]);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!canTouchDrag) return;
+    const card = e.currentTarget as HTMLElement;
+    card.style.opacity = '';
+
+    if (dragCloneRef.current) {
+      dragCloneRef.current.remove();
+      dragCloneRef.current = null;
+    }
+
+    if (isDraggingRef.current) {
+      const touch = e.changedTouches[0];
+      const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (dropTarget) {
+        const queueEl = dropTarget.closest('[data-queue-status]') as HTMLElement | null;
+        const cardEl = dropTarget.closest('[data-patient-id]') as HTMLElement | null;
+
+        if (cardEl) {
+          const targetId = cardEl.getAttribute('data-patient-id');
+          if (targetId && targetId !== patient.id && onMove) {
+            const targetQueueEl = cardEl.closest('[data-queue-status]') as HTMLElement | null;
+            const targetStatus = targetQueueEl?.getAttribute('data-queue-status');
+            if (targetStatus === patient.status) {
+              const event = new CustomEvent('touch-reorder', {
+                detail: { sourceId: patient.id, targetId }
+              });
+              window.dispatchEvent(event);
+            }
+          }
+        } else if (queueEl) {
+          const targetStatus = queueEl.getAttribute('data-queue-status') as PatientStatus;
+          if (targetStatus && targetStatus !== patient.status) {
+            onUpdateStatus(patient.id, targetStatus);
+          }
+        }
+      }
+    }
+
+    touchStartRef.current = null;
+    isDraggingRef.current = false;
+  }, [canTouchDrag, patient.id, patient.status, onUpdateStatus, onMove]);
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -137,10 +235,14 @@ const PatientCard: React.FC<PatientCardProps> = ({
 
   return (
     <div 
-      draggable={!onClick && activeView === 'OPERATOR'}
+      draggable={!onClick && activeView === 'OPERATOR' && !isTablet}
       onDragStart={handleDragStart}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       onClick={() => onClick?.(patient.id)}
       className={`${finalThemeClasses} border-2 rounded-2xl transition-all duration-300 ${activeClasses} ${onClick ? 'cursor-pointer' : (activeView === 'OPERATOR' ? 'cursor-grab active:cursor-grabbing' : '')} group relative overflow-hidden flex flex-col`}
+      style={canTouchDrag ? { touchAction: 'none' } : undefined}
     >
       {isVisitorCategory && (
         <div className="absolute top-0 right-0 bg-red-600 text-white font-black px-3 py-1 rounded-bl-xl uppercase tracking-widest z-10 text-[8px] shadow-sm">
@@ -148,20 +250,20 @@ const PatientCard: React.FC<PatientCardProps> = ({
         </div>
       )}
 
-      <div className={`flex items-start ${isOPD ? 'gap-2 p-3' : isLarge ? 'gap-4 p-8' : (patient.status === PatientStatus.WAITING || patient.status === PatientStatus.COMPLETED) ? 'gap-2 p-3' : 'gap-3 p-4'}`}>
+      <div className={`flex items-start ${isOPD ? 'gap-2 p-2' : isLarge ? 'gap-4 p-8' : (patient.status === PatientStatus.WAITING || patient.status === PatientStatus.COMPLETED) ? `gap-2 ${isTablet ? 'p-2' : 'p-3'}` : 'gap-3 p-4'}`}>
         
         <div className={`flex flex-col items-center flex-shrink-0 ${isOPD ? 'gap-1' : (patient.status === PatientStatus.WAITING || patient.status === PatientStatus.COMPLETED) ? '' : 'gap-3'}`}>
-          <div className={`rounded-full overflow-hidden shadow-sm transition-all ${isOPD ? 'w-14 h-14' : isLarge ? 'w-28 h-28' : patient.status === PatientStatus.COMPLETED ? 'w-12 h-12' : patient.status === PatientStatus.WAITING ? 'w-14 h-14' : 'w-16 h-16'}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
+          <div className={`rounded-full overflow-hidden shadow-sm transition-all ${isOPD ? (isTablet ? 'w-10 h-10' : 'w-14 h-14') : isLarge ? 'w-28 h-28' : patient.status === PatientStatus.COMPLETED ? (isTablet ? 'w-9 h-9' : 'w-12 h-12') : patient.status === PatientStatus.WAITING ? (isTablet ? 'w-10 h-10' : 'w-14 h-14') : 'w-16 h-16'}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
             <AvatarIcon className="w-full h-full" />
           </div>
-          <div className={`bg-white border border-slate-200 rounded-lg font-bold text-slate-500 uppercase tracking-widest text-center shadow-sm ${isOPD ? 'px-2 py-0.5 text-[9px] min-w-[75px]' : 'px-2 py-1 text-[9px] min-w-[75px]'}`}>
+          <div className={`bg-white border border-slate-200 rounded-lg font-bold text-slate-500 uppercase tracking-widest text-center shadow-sm ${isTablet ? 'px-1.5 py-0.5 text-[7px] min-w-[60px]' : isOPD ? 'px-2 py-0.5 text-[9px] min-w-[75px]' : 'px-2 py-1 text-[9px] min-w-[75px]'}`}>
             {patient.type}
           </div>
         </div>
 
         <div className={`flex-1 min-w-0 flex flex-col ${isOPD ? 'justify-center' : 'pt-0.5'}`}>
           <div className="flex items-center gap-2 mb-1">
-            <h4 className={`truncate uppercase tracking-tight leading-tight flex-1 ${isOPD ? 'text-3xl font-bold' : isLarge ? 'text-5xl font-extrabold' : 'text-[1.5rem] font-bold'}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
+            <h4 className={`truncate uppercase tracking-tight leading-tight flex-1 ${isOPD ? (isTablet ? 'text-xl font-bold' : 'text-3xl font-bold') : isLarge ? 'text-5xl font-extrabold' : (isTablet ? 'text-base font-bold' : 'text-[1.5rem] font-bold')}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
               {!isVisitorCategory ? (
                 <><span className="text-[maroon]">[{patient.queueId}]</span> <span className="text-slate-900">{patient.name}</span></>
               ) : (
@@ -177,21 +279,21 @@ const PatientCard: React.FC<PatientCardProps> = ({
           </div>
           
           {patient.status === PatientStatus.WAITING ? (
-            <div className={`font-semibold text-slate-600 truncate ${isLarge ? 'text-2xl' : 'text-xl'}`}>
+            <div className={`font-semibold text-slate-600 truncate ${isLarge ? 'text-2xl' : (isTablet ? 'text-sm' : 'text-xl')}`}>
               {patient.city && (
                 <><span className="font-black text-slate-900">{patient.city}</span><span className="mx-1.5 text-slate-300">|</span></>
               )}
               {patient.age} Years ({patient.gender})
             </div>
           ) : patient.status === PatientStatus.COMPLETED ? (
-            <div className={`font-semibold text-slate-600 truncate ${isLarge ? 'text-2xl' : 'text-xl'}`}>
+            <div className={`font-semibold text-slate-600 truncate ${isLarge ? 'text-2xl' : (isTablet ? 'text-sm' : 'text-xl')}`}>
               {patient.city && (
                 <><span className="font-black text-slate-900">{patient.city}</span><span className="mx-1.5 text-slate-300">|</span></>
               )}
               {patient.age} Years ({patient.gender})
             </div>
           ) : (
-            <div className="font-semibold text-slate-600 truncate text-2xl">
+            <div className={`font-semibold text-slate-600 truncate ${isTablet ? 'text-base' : 'text-2xl'}`}>
               {patient.city && (
                 <><span className="font-black text-slate-900">{patient.city}</span><span className="mx-1.5 text-slate-300">|</span></>
               )}
@@ -205,7 +307,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
       </div>
 
       {patient.status === PatientStatus.COMPLETED ? (
-        <div className="border-t border-slate-100 bg-slate-50/50 flex items-center px-4 py-2 transition-all group-hover:bg-white min-h-[48px]">
+        <div className={`border-t border-slate-100 bg-slate-50/50 flex items-center transition-all group-hover:bg-white ${isTablet ? 'px-2 py-1.5 min-h-[40px]' : 'px-4 py-2 min-h-[48px]'}`}>
           <div className="flex items-center justify-center" style={{ width: '15%' }}>
             <button 
               onClick={(e) => { e.stopPropagation(); onUpdateStatus(patient.id, PatientStatus.OPD); }} 

@@ -10,6 +10,7 @@ import PatientReport from './components/PatientReport';
 import Calendar from './components/Calendar';
 import Statistics from './components/Statistics';
 import { Icons } from './constants';
+import { useIsTablet } from './hooks/useIsTablet';
 
 const API_BASE = '/api';
 const LOCAL_STORAGE_KEY = 'clinicflow_patients_fallback';
@@ -94,6 +95,7 @@ const App: React.FC = () => {
   const alertSoundRef = useRef<HTMLAudioElement | null>(null);
   const activeFromSocketRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const isTablet = useIsTablet();
 
   // Play alert sound using Web Audio API
   const playAlertSound = useCallback(() => {
@@ -425,12 +427,46 @@ const App: React.FC = () => {
       setIsResizing(null);
     };
 
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isResizing || !containerRef.current || !e.touches[0]) return;
+      e.preventDefault();
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const touchX = e.touches[0].clientX - containerRect.left;
+      const percentage = (touchX / containerWidth) * 100;
+      
+      setColumnWidths(prev => {
+        const minWidth = 15;
+        const maxWidth = 60;
+        
+        if (isResizing === 'left') {
+          let newLeft = Math.max(minWidth, Math.min(maxWidth, percentage));
+          let newCenter = 100 - newLeft - prev.right;
+          if (newCenter < minWidth) { newCenter = minWidth; newLeft = 100 - newCenter - prev.right; }
+          return { left: newLeft, center: newCenter, right: prev.right };
+        } else {
+          let newRight = Math.max(minWidth, Math.min(maxWidth, 100 - percentage));
+          let newCenter = 100 - prev.left - newRight;
+          if (newCenter < minWidth) { newCenter = minWidth; newRight = 100 - prev.left - newCenter; }
+          return { left: prev.left, center: newCenter, right: newRight };
+        }
+      });
+    };
+
+    const handleTouchEnd = () => {
+      setIsResizing(null);
+    };
+
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
   }, [isResizing]);
 
@@ -884,51 +920,51 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen w-full bg-[#f8fafc] font-sans overflow-hidden">
-      <header className="bg-[#4338ca] text-white p-3 px-4 shadow-md flex items-center justify-between z-10 shrink-0">
-        <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold">
+      <header className={`bg-[#4338ca] text-white shadow-md flex items-center justify-between z-10 shrink-0 ${isTablet ? 'p-2 px-3' : 'p-3 px-4'}`}>
+        <div className={`flex items-center ${isTablet ? 'gap-2' : 'gap-4'}`}>
+          <h1 className={`font-bold ${isTablet ? 'text-xl' : 'text-3xl'}`}>
             {appName}
           </h1>
-          <div className="text-[10px] font-black bg-[#1e1b4b]/50 px-2.5 py-1 rounded-lg border border-indigo-400/30 uppercase tracking-widest text-indigo-100">
+          <div className={`font-black bg-[#1e1b4b]/50 rounded-lg border border-indigo-400/30 uppercase tracking-widest text-indigo-100 ${isTablet ? 'text-[8px] px-1.5 py-0.5' : 'text-[10px] px-2.5 py-1'}`}>
             {activeView} PANEL
           </div>
           {/* Navigation Menu */}
           <nav className="flex items-center gap-1 bg-[#1e1b4b]/30 rounded-lg p-1 border border-indigo-400/20">
             <button
               onClick={() => setCurrentPage('DASHBOARD')}
-              className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 ${
+              className={`${isTablet ? 'px-2 py-1' : 'px-3 py-1.5'} rounded-md transition-all flex items-center gap-1.5 ${
                 currentPage === 'DASHBOARD' 
                   ? 'bg-white text-indigo-700 shadow-sm' 
                   : 'text-indigo-100 hover:bg-white/10'
               }`}
               title="Home"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              <span className="text-[13px] font-bold uppercase tracking-wide">Home</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width={isTablet ? "14" : "16"} height={isTablet ? "14" : "16"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span className={`font-bold uppercase tracking-wide ${isTablet ? 'text-[10px]' : 'text-[13px]'}`}>Home</span>
             </button>
             <button
               onClick={() => setCurrentPage('REPORT')}
-              className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 ${
+              className={`${isTablet ? 'px-2 py-1' : 'px-3 py-1.5'} rounded-md transition-all flex items-center gap-1.5 ${
                 currentPage === 'REPORT' 
                   ? 'bg-white text-indigo-700 shadow-sm' 
                   : 'text-indigo-100 hover:bg-white/10'
               }`}
               title="Report"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-              <span className="text-[13px] font-bold uppercase tracking-wide">Report</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width={isTablet ? "14" : "16"} height={isTablet ? "14" : "16"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <span className={`font-bold uppercase tracking-wide ${isTablet ? 'text-[10px]' : 'text-[13px]'}`}>Report</span>
             </button>
             <button
               onClick={() => setCurrentPage('CALENDAR')}
-              className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 relative ${
+              className={`${isTablet ? 'px-2 py-1' : 'px-3 py-1.5'} rounded-md transition-all flex items-center gap-1.5 relative ${
                 currentPage === 'CALENDAR' 
                   ? 'bg-white text-indigo-700 shadow-sm' 
                   : 'text-indigo-100 hover:bg-white/10'
               }`}
               title="Event"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span className="text-[13px] font-bold uppercase tracking-wide">Event</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width={isTablet ? "14" : "16"} height={isTablet ? "14" : "16"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span className={`font-bold uppercase tracking-wide ${isTablet ? 'text-[10px]' : 'text-[13px]'}`}>Event</span>
               {hasEventsToday && (
                 <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
                   <span className="animate-ping absolute h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -938,23 +974,23 @@ const App: React.FC = () => {
             </button>
             <button
               onClick={() => setCurrentPage('INFO')}
-              className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 ${
+              className={`${isTablet ? 'px-2 py-1' : 'px-3 py-1.5'} rounded-md transition-all flex items-center gap-1.5 ${
                 currentPage === 'INFO' 
                   ? 'bg-white text-indigo-700 shadow-sm' 
                   : 'text-indigo-100 hover:bg-white/10'
               }`}
               title="Info"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              <span className="text-[13px] font-bold uppercase tracking-wide">Info</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width={isTablet ? "14" : "16"} height={isTablet ? "14" : "16"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span className={`font-bold uppercase tracking-wide ${isTablet ? 'text-[10px]' : 'text-[13px]'}`}>Info</span>
             </button>
             <button
               onClick={() => window.open('/display', '_blank')}
-              className="px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 text-indigo-100 hover:bg-white/10"
+              className={`${isTablet ? 'px-2 py-1' : 'px-3 py-1.5'} rounded-md transition-all flex items-center gap-1.5 text-indigo-100 hover:bg-white/10`}
               title="Open Queue Display for waiting room TV"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-              <span className="text-[13px] font-bold uppercase tracking-wide">Display</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width={isTablet ? "14" : "16"} height={isTablet ? "14" : "16"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <span className={`font-bold uppercase tracking-wide ${isTablet ? 'text-[10px]' : 'text-[13px]'}`}>Display</span>
             </button>
           </nav>
         </div>
@@ -968,7 +1004,7 @@ const App: React.FC = () => {
                 placeholder="Search name, mobile, city..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-white/10 border border-indigo-400/30 rounded-lg px-3 py-1.5 pl-8 text-[11px] text-white placeholder-indigo-200/70 focus:outline-none focus:ring-2 focus:ring-white/30 w-52"
+                className={`bg-white/10 border border-indigo-400/30 rounded-lg px-3 py-1.5 pl-8 text-[11px] text-white placeholder-indigo-200/70 focus:outline-none focus:ring-2 focus:ring-white/30 ${isTablet ? 'w-36' : 'w-52'}`}
               />
               {searchTerm && (
                 <button
@@ -1064,13 +1100,15 @@ const App: React.FC = () => {
                 headerColor="bg-[#2563eb]"
                 isSortable
                 activeView={activeView}
+                isTablet={isTablet}
               />
             </section>
 
             {/* LEFT RESIZE DIVIDER */}
             <div 
-              className="w-2 flex-shrink-0 cursor-col-resize group relative z-10 flex items-center justify-center"
+              className={`${isTablet ? 'w-4' : 'w-2'} flex-shrink-0 cursor-col-resize group relative z-10 flex items-center justify-center`}
               onMouseDown={handleResizeStart('left')}
+              onTouchStart={(e) => { e.preventDefault(); setIsResizing('left'); }}
             >
               <div className={`w-1 h-full transition-colors ${isResizing === 'left' ? 'bg-indigo-500' : 'bg-gray-200 group-hover:bg-indigo-400'}`}></div>
               <div className="absolute top-1/2 -translate-y-1/2 w-4 h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1105,6 +1143,7 @@ const App: React.FC = () => {
                   opdStatus={opdStatus}
                   opdStatusOptions={opdStatusOptions}
                   onOpdStatusChange={updateOpdStatus}
+                  isTablet={isTablet}
                 />
               </div>
               
@@ -1148,8 +1187,9 @@ const App: React.FC = () => {
 
             {/* RIGHT RESIZE DIVIDER */}
             <div 
-              className="w-2 flex-shrink-0 cursor-col-resize group relative z-10 flex items-center justify-center"
+              className={`${isTablet ? 'w-4' : 'w-2'} flex-shrink-0 cursor-col-resize group relative z-10 flex items-center justify-center`}
               onMouseDown={handleResizeStart('right')}
+              onTouchStart={(e) => { e.preventDefault(); setIsResizing('right'); }}
             >
               <div className={`w-1 h-full transition-colors ${isResizing === 'right' ? 'bg-indigo-500' : 'bg-gray-200 group-hover:bg-indigo-400'}`}></div>
               <div className="absolute top-1/2 -translate-y-1/2 w-4 h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1173,6 +1213,7 @@ const App: React.FC = () => {
                 colorClass="bg-[#f0fdf4] border-[#bbf7d0]"
                 headerColor="bg-[#059669]"
                 activeView={activeView}
+                isTablet={isTablet}
               />
             </section>
           </div>

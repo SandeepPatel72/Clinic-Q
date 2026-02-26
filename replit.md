@@ -55,6 +55,15 @@ Key features include:
   - AnimatePresence handles exit animations natively (removed manual exitingIds tracking)
   - All animations sync across Doctor and Operator panels via Socket.IO
   - QueueDisplay (/display) also uses Framer Motion for OPD and waiting card animations
+- 2026-02-26: Tablet Support (11-12" devices, 768-1400px width)
+  - `hooks/useIsTablet.ts` hook detects tablet via width range + touch capability
+  - Header, nav buttons, search bar scaled down for tablet; desktop unchanged
+  - Patient cards: smaller avatars, fonts, badges on tablet; desktop identical
+  - Queue column headers: compact padding, font sizes, counter badges on tablet
+  - Resize dividers: wider touch targets on tablet + touchmove/touchend handlers
+  - Touch drag-and-drop for patient cards (Operator view): visual clone follows finger, elementFromPoint resolves drop target, triggers existing onUpdateStatus/onReorder callbacks
+  - Desktop HTML5 drag-and-drop preserved; touch drag only activates on tablet
+  - No business logic changes (sorting, pinning, status rules all untouched)
 
 ## External Dependencies
 - **React**: Frontend library.
