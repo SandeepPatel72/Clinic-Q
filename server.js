@@ -53,6 +53,10 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('Client disconnected:', socket.id);
     });
+
+    socket.on('consultation:active', (patientId) => {
+        socket.broadcast.emit('consultation:active', patientId);
+    });
 });
 
 // Move API routes BEFORE static file serving

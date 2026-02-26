@@ -148,20 +148,20 @@ const PatientCard: React.FC<PatientCardProps> = ({
         </div>
       )}
 
-      <div className={`flex items-start ${isOPD ? 'gap-3 p-3' : isLarge ? 'gap-4 p-8' : (patient.status === PatientStatus.WAITING || patient.status === PatientStatus.COMPLETED) ? 'gap-2 p-3' : 'gap-3 p-4'}`}>
+      <div className={`flex items-start ${isOPD ? 'gap-2 p-3' : isLarge ? 'gap-4 p-8' : (patient.status === PatientStatus.WAITING || patient.status === PatientStatus.COMPLETED) ? 'gap-2 p-3' : 'gap-3 p-4'}`}>
         
-        <div className={`flex flex-col items-center flex-shrink-0 ${isOPD ? 'gap-2' : (patient.status === PatientStatus.WAITING || patient.status === PatientStatus.COMPLETED) ? '' : 'gap-3'}`}>
-          <div className={`rounded-full overflow-hidden shadow-sm transition-all ${isOPD ? 'w-20 h-20' : isLarge ? 'w-28 h-28' : patient.status === PatientStatus.COMPLETED ? 'w-12 h-12' : patient.status === PatientStatus.WAITING ? 'w-14 h-14' : 'w-16 h-16'}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
+        <div className={`flex flex-col items-center flex-shrink-0 ${isOPD ? 'gap-1' : (patient.status === PatientStatus.WAITING || patient.status === PatientStatus.COMPLETED) ? '' : 'gap-3'}`}>
+          <div className={`rounded-full overflow-hidden shadow-sm transition-all ${isOPD ? 'w-14 h-14' : isLarge ? 'w-28 h-28' : patient.status === PatientStatus.COMPLETED ? 'w-12 h-12' : patient.status === PatientStatus.WAITING ? 'w-14 h-14' : 'w-16 h-16'}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
             <AvatarIcon className="w-full h-full" />
           </div>
-          <div className={`bg-white border border-slate-200 rounded-lg font-bold text-slate-500 uppercase tracking-widest text-center shadow-sm ${isOPD ? 'px-2.5 py-1 text-[11px] min-w-[80px]' : 'px-2 py-1 text-[9px] min-w-[75px]'}`}>
+          <div className={`bg-white border border-slate-200 rounded-lg font-bold text-slate-500 uppercase tracking-widest text-center shadow-sm ${isOPD ? 'px-2 py-0.5 text-[9px] min-w-[75px]' : 'px-2 py-1 text-[9px] min-w-[75px]'}`}>
             {patient.type}
           </div>
         </div>
 
         <div className={`flex-1 min-w-0 flex flex-col ${isOPD ? 'justify-center' : 'pt-0.5'}`}>
-          <div className="flex items-center gap-2 mb-1.5">
-            <h4 className={`truncate uppercase tracking-tight leading-tight flex-1 ${isOPD ? 'text-4xl font-extrabold' : isLarge ? 'text-5xl font-extrabold' : 'text-[1.5rem] font-bold'}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className={`truncate uppercase tracking-tight leading-tight flex-1 ${isOPD ? 'text-2xl font-bold' : isLarge ? 'text-5xl font-extrabold' : 'text-[1.5rem] font-bold'}`} title={patient.status === PatientStatus.WAITING && patient.mobile ? `Mobile: ${patient.mobile}` : undefined}>
               {!isVisitorCategory ? (
                 <><span className="text-[maroon]">[{patient.queueId}]</span> <span className="text-slate-900">{patient.name}</span></>
               ) : (
@@ -169,7 +169,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
               )}
             </h4>
             {isOPD && patient.inTime && (
-              <div className="bg-gray-200 text-gray-900 rounded-xl font-black whitespace-nowrap shadow-sm text-center flex-shrink-0 px-4 py-2 text-sm uppercase tracking-wide border border-gray-300 flex items-center gap-2">
+              <div className="bg-gray-200 text-gray-900 rounded-lg font-black whitespace-nowrap shadow-sm text-center flex-shrink-0 px-3 py-1 text-xs uppercase tracking-wide border border-gray-300 flex items-center gap-1.5">
                 <Icons.Clock />
                 <span>{formatTime(patient.inTime)}</span>
               </div>
@@ -191,7 +191,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
               {patient.age} Years ({patient.gender})
             </div>
           ) : (
-            <div className="font-semibold text-slate-600 truncate text-3xl">
+            <div className="font-semibold text-slate-600 truncate text-xl">
               {patient.city && (
                 <><span className="font-black text-slate-900">{patient.city}</span><span className="mx-1.5 text-slate-300">|</span></>
               )}

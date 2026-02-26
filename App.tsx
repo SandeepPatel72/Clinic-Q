@@ -92,6 +92,7 @@ const App: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
   const alertSoundRef = useRef<HTMLAudioElement | null>(null);
+  const activeFromSocketRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
 
   // Play alert sound using Web Audio API
@@ -346,10 +347,25 @@ const App: React.FC = () => {
       checkTodayEvents();
     });
 
+    socket.on('consultation:active', (patientId: string | null) => {
+      activeFromSocketRef.current = true;
+      setActiveConsultationId(patientId);
+    });
+
     return () => {
       socket.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    if (activeFromSocketRef.current) {
+      activeFromSocketRef.current = false;
+      return;
+    }
+    if (activeView === 'DOCTOR') {
+      socketRef.current?.emit('consultation:active', activeConsultationId);
+    }
+  }, [activeConsultationId, activeView]);
 
   // Save column widths to localStorage
   useEffect(() => {
