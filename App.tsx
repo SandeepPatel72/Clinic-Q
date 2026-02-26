@@ -1081,7 +1081,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex flex-1 p-3 overflow-hidden">
+      <main className={`flex flex-1 overflow-hidden ${isTablet ? 'p-1' : 'p-3'}`}>
         {currentPage === 'DASHBOARD' ? (
           <div ref={containerRef} className="flex w-full h-full relative" style={{ userSelect: isResizing ? 'none' : 'auto' }}>
             {/* LEFT COLUMN: WAITING QUEUE */}
@@ -1106,12 +1106,13 @@ const App: React.FC = () => {
 
             {/* LEFT RESIZE DIVIDER */}
             <div 
-              className={`${isTablet ? 'w-4' : 'w-2'} flex-shrink-0 cursor-col-resize group relative z-10 flex items-center justify-center`}
+              className="w-2 flex-shrink-0 cursor-col-resize group relative z-10 flex items-center justify-center"
               onMouseDown={handleResizeStart('left')}
               onTouchStart={(e) => { e.preventDefault(); setIsResizing('left'); }}
             >
               <div className={`w-1 h-full transition-colors ${isResizing === 'left' ? 'bg-indigo-500' : 'bg-gray-200 group-hover:bg-indigo-400'}`}></div>
-              <div className="absolute top-1/2 -translate-y-1/2 w-4 h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              {isTablet && <div className="absolute inset-y-0 -left-3 -right-3 z-10" />}
+              <div className="absolute top-1/2 -translate-y-1/2 w-4 h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                 <div className="flex flex-col gap-0.5">
                   <div className="w-1 h-1 bg-indigo-400 rounded-full"></div>
                   <div className="w-1 h-1 bg-indigo-400 rounded-full"></div>
@@ -1187,12 +1188,13 @@ const App: React.FC = () => {
 
             {/* RIGHT RESIZE DIVIDER */}
             <div 
-              className={`${isTablet ? 'w-4' : 'w-2'} flex-shrink-0 cursor-col-resize group relative z-10 flex items-center justify-center`}
+              className="w-2 flex-shrink-0 cursor-col-resize group relative z-10 flex items-center justify-center"
               onMouseDown={handleResizeStart('right')}
               onTouchStart={(e) => { e.preventDefault(); setIsResizing('right'); }}
             >
               <div className={`w-1 h-full transition-colors ${isResizing === 'right' ? 'bg-indigo-500' : 'bg-gray-200 group-hover:bg-indigo-400'}`}></div>
-              <div className="absolute top-1/2 -translate-y-1/2 w-4 h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              {isTablet && <div className="absolute inset-y-0 -left-3 -right-3 z-10" />}
+              <div className="absolute top-1/2 -translate-y-1/2 w-4 h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                 <div className="flex flex-col gap-0.5">
                   <div className="w-1 h-1 bg-indigo-400 rounded-full"></div>
                   <div className="w-1 h-1 bg-indigo-400 rounded-full"></div>

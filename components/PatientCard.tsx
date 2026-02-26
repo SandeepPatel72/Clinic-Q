@@ -307,37 +307,52 @@ const PatientCard: React.FC<PatientCardProps> = ({
       </div>
 
       {patient.status === PatientStatus.COMPLETED ? (
-        <div className={`border-t border-slate-100 bg-slate-50/50 flex items-center transition-all group-hover:bg-white ${isTablet ? 'px-2 py-1.5 min-h-[40px]' : 'px-4 py-2 min-h-[48px]'}`}>
+        <div className={`border-t border-slate-100 bg-slate-50/50 flex items-center transition-all group-hover:bg-white ${isTablet ? 'px-2 py-1 min-h-[34px]' : 'px-4 py-2 min-h-[48px]'}`}>
           <div className="flex items-center justify-center" style={{ width: '15%' }}>
             <button 
               onClick={(e) => { e.stopPropagation(); onUpdateStatus(patient.id, PatientStatus.OPD); }} 
-              className="text-amber-600 hover:text-amber-700 transition-colors p-1.5 hover:bg-amber-50 rounded-lg flex items-center gap-1" 
+              className={`text-amber-600 hover:text-amber-700 transition-colors hover:bg-amber-50 rounded-lg flex items-center gap-1 ${isTablet ? 'p-0.5' : 'p-1.5'}`}
               title="Send to OPD"
             >
               <Icons.Stethoscope />
             </button>
           </div>
-          <div className="w-[1px] h-5 bg-slate-200"></div>
-          <div className="flex items-center justify-center" style={{ width: '35%' }}>
-            {patient.inTime && (
-              <div className="bg-gray-200 text-gray-900 px-3 py-1 rounded-lg font-bold text-[11px] whitespace-nowrap shadow-sm min-w-[100px] text-center">
-                IN &nbsp;: {formatTime(patient.inTime)}
-              </div>
+          <div className={`w-[1px] bg-slate-200 ${isTablet ? 'h-3' : 'h-5'}`}></div>
+          <div className="flex items-center justify-center flex-1">
+            {isTablet ? (
+              (patient.inTime || patient.outTime) && (
+                <div className="flex items-center gap-1 bg-gray-100 rounded px-1.5 py-0.5">
+                  <svg className="w-2.5 h-2.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  {patient.inTime && <span className="text-[9px] font-semibold text-gray-700 whitespace-nowrap">{formatTime(patient.inTime)}</span>}
+                  {patient.inTime && patient.outTime && <span className="text-[9px] text-gray-400">·</span>}
+                  {patient.outTime && <span className="text-[9px] font-semibold text-gray-700 whitespace-nowrap">{formatTime(patient.outTime)}</span>}
+                </div>
+              )
+            ) : (
+              <>
+                <div className="flex items-center justify-center" style={{ width: '50%' }}>
+                  {patient.inTime && (
+                    <div className="bg-gray-200 text-gray-900 px-3 py-1 rounded-lg font-bold text-[11px] whitespace-nowrap shadow-sm min-w-[100px] text-center">
+                      IN &nbsp;: {formatTime(patient.inTime)}
+                    </div>
+                  )}
+                </div>
+                <div className="w-[1px] h-5 bg-slate-200"></div>
+                <div className="flex items-center justify-center" style={{ width: '50%' }}>
+                  {patient.outTime && (
+                    <div className="bg-gray-200 text-gray-900 px-3 py-1 rounded-lg font-bold text-[11px] whitespace-nowrap shadow-sm min-w-[100px] text-center">
+                      OUT: {formatTime(patient.outTime)}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
-          <div className="w-[1px] h-5 bg-slate-200"></div>
-          <div className="flex items-center justify-center" style={{ width: '35%' }}>
-            {patient.outTime && (
-              <div className="bg-gray-200 text-gray-900 px-3 py-1 rounded-lg font-bold text-[11px] whitespace-nowrap shadow-sm min-w-[100px] text-center">
-                OUT: {formatTime(patient.outTime)}
-              </div>
-            )}
-          </div>
-          <div className="w-[1px] h-5 bg-slate-200"></div>
+          <div className={`w-[1px] bg-slate-200 ${isTablet ? 'h-3' : 'h-5'}`}></div>
           <div className="flex items-center justify-center" style={{ width: '15%' }}>
             <button 
               onClick={handleChatClick} 
-              className={`transition-all relative p-1.5 rounded-lg hover:bg-indigo-50 ${patient.hasUnreadAlert ? 'text-rose-600' : 'text-indigo-600'}`} 
+              className={`transition-all relative rounded-lg hover:bg-indigo-50 ${isTablet ? 'p-0.5' : 'p-1.5'} ${patient.hasUnreadAlert ? 'text-rose-600' : 'text-indigo-600'}`}
               title="Discussion"
             >
               <Icons.Message />
@@ -351,13 +366,13 @@ const PatientCard: React.FC<PatientCardProps> = ({
           </div>
         </div>
       ) : patient.status === PatientStatus.WAITING ? (
-        <div className="border-t border-slate-100 bg-slate-50/50 flex items-center px-4 py-2 transition-all group-hover:bg-white min-h-[48px]">
-          <div className="flex items-center gap-1">
+        <div className={`border-t border-slate-100 bg-slate-50/50 flex items-center transition-all group-hover:bg-white ${isTablet ? 'px-1 py-1 min-h-[34px]' : 'px-4 py-2 min-h-[48px]'}`}>
+          <div className={`flex items-center ${isTablet ? 'gap-0' : 'gap-1'}`}>
             {onMove && (() => {
               const isPinned = patient.type === PatientType.FAMILY || patient.type === PatientType.RELATIVE;
               const btnClass = isPinned 
-                ? "text-slate-200 cursor-not-allowed p-1.5 rounded-md" 
-                : "text-slate-400 hover:text-indigo-600 transition-colors p-1.5 rounded-md hover:bg-slate-100";
+                ? `text-slate-200 cursor-not-allowed rounded-md ${isTablet ? 'p-0.5' : 'p-1.5'}`
+                : `text-slate-400 hover:text-indigo-600 transition-colors rounded-md hover:bg-slate-100 ${isTablet ? 'p-0.5' : 'p-1.5'}`;
               return (
                 <>
                   <button 
@@ -381,27 +396,34 @@ const PatientCard: React.FC<PatientCardProps> = ({
             })()}
           </div>
 
-          <div className="w-[1px] h-5 bg-slate-200"></div>
+          <div className={`w-[1px] bg-slate-200 ${isTablet ? 'h-3' : 'h-5'}`}></div>
 
-          <div className="flex items-center gap-1 px-2">
-            {onEdit && <button onClick={(e) => { e.stopPropagation(); onEdit(patient); }} className="text-slate-400 hover:text-slate-700 transition-colors p-1.5 rounded-md hover:bg-slate-100" title="Edit"><Icons.Edit /></button>}
-            {onDelete && <button onClick={handleDeleteClick} className="text-slate-300 hover:text-rose-600 transition-colors p-1.5 rounded-md hover:bg-rose-50" title="Delete"><Icons.Trash /></button>}
+          <div className={`flex items-center gap-0.5 ${isTablet ? 'px-0.5' : 'px-2 gap-1'}`}>
+            {onEdit && <button onClick={(e) => { e.stopPropagation(); onEdit(patient); }} className={`text-slate-400 hover:text-slate-700 transition-colors rounded-md hover:bg-slate-100 ${isTablet ? 'p-0.5' : 'p-1.5'}`} title="Edit"><Icons.Edit /></button>}
+            {onDelete && <button onClick={handleDeleteClick} className={`text-slate-300 hover:text-rose-600 transition-colors rounded-md hover:bg-rose-50 ${isTablet ? 'p-0.5' : 'p-1.5'}`} title="Delete"><Icons.Trash /></button>}
           </div>
 
-          <div className="w-[1px] h-5 bg-slate-200"></div>
+          <div className={`w-[1px] bg-slate-200 ${isTablet ? 'h-3' : 'h-5'}`}></div>
 
-          <div className="flex items-center justify-center flex-1 px-2">
+          <div className={`flex items-center justify-center flex-1 ${isTablet ? 'px-0.5' : 'px-2'}`}>
             {patient.inTime && (
-              <div className="bg-gray-200 text-gray-900 px-3 py-1 rounded-lg font-bold text-[11px] whitespace-nowrap shadow-sm min-w-[100px] text-center">
-                IN &nbsp;: {formatTime(patient.inTime)}
-              </div>
+              isTablet ? (
+                <div className="flex items-center gap-0.5 bg-gray-100 rounded px-1.5 py-0.5">
+                  <svg className="w-2.5 h-2.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span className="text-[9px] font-semibold text-gray-700 whitespace-nowrap">{formatTime(patient.inTime)}</span>
+                </div>
+              ) : (
+                <div className="bg-gray-200 text-gray-900 px-3 py-1 rounded-lg font-bold text-[11px] whitespace-nowrap shadow-sm min-w-[100px] text-center">
+                  IN &nbsp;: {formatTime(patient.inTime)}
+                </div>
+              )
             )}
           </div>
 
-          <div className="flex items-center justify-center px-1">
+          <div className={`flex items-center justify-center ${isTablet ? 'px-0' : 'px-1'}`}>
             <button 
               onClick={handleChatClick} 
-              className={`transition-all relative p-1.5 rounded-lg hover:bg-indigo-50 ${patient.hasUnreadAlert ? 'text-rose-600' : 'text-indigo-600'}`} 
+              className={`transition-all relative rounded-lg hover:bg-indigo-50 ${isTablet ? 'p-0.5' : 'p-1.5'} ${patient.hasUnreadAlert ? 'text-rose-600' : 'text-indigo-600'}`}
               title="Discussion"
             >
               <Icons.Message />
@@ -414,19 +436,19 @@ const PatientCard: React.FC<PatientCardProps> = ({
             </button>
           </div>
 
-          <div className="w-[1px] h-5 bg-slate-200"></div>
+          <div className={`w-[1px] bg-slate-200 ${isTablet ? 'h-3' : 'h-5'}`}></div>
 
-          <div className="flex items-center gap-2 pl-2">
+          <div className={`flex items-center ${isTablet ? 'gap-0.5 pl-0.5' : 'gap-2 pl-2'}`}>
             <button 
               onClick={(e) => { e.stopPropagation(); onUpdateStatus(patient.id, PatientStatus.OPD); }} 
-              className="text-amber-600 hover:text-amber-700 transition-colors p-1.5 hover:bg-amber-50 rounded-lg flex items-center gap-1" 
+              className={`text-amber-600 hover:text-amber-700 transition-colors hover:bg-amber-50 rounded-lg flex items-center gap-1 ${isTablet ? 'p-0.5' : 'p-1.5'}`}
               title="Send to OPD"
             >
               <Icons.Stethoscope />
             </button>
             <button 
               onClick={(e) => { e.stopPropagation(); onUpdateStatus(patient.id, PatientStatus.COMPLETED); }} 
-              className="text-emerald-600 hover:text-emerald-700 transition-colors p-1.5 hover:bg-emerald-50 rounded-lg" 
+              className={`text-emerald-600 hover:text-emerald-700 transition-colors hover:bg-emerald-50 rounded-lg ${isTablet ? 'p-0.5' : 'p-1.5'}`}
               title="Mark Done"
             >
               <Icons.CheckCircle />
