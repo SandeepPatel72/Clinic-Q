@@ -18,6 +18,7 @@ RUN npm ci --omit=dev
 COPY server.js ./
 COPY metadata.json ./
 COPY secretcred.json ./
+COPY OPDSTATUS.txt ./
 COPY database_schema.sql ./
 COPY database_backup.sql ./
 COPY database.sql ./

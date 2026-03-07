@@ -326,7 +326,7 @@ cp docker.env.example docker.env
 # 3. Edit metadata.json (hospital name)
 
 # 4. Build and start
-docker compose up -d --build
+docker compose --env-file docker.env up -d --build
 ```
 
 App will be available at `http://your-server-ip:3001`

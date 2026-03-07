@@ -109,7 +109,7 @@ PORT=3001
 ### Step 5 — Start the app
 
 ```bash
-docker compose up -d --build
+docker compose --env-file docker.env up -d --build
 ```
 
 This will:
@@ -138,7 +138,7 @@ http://your-server-ip:3001
 
 ```bash
 # Start in background
-docker compose up -d
+docker compose --env-file docker.env up -d
 
 # Stop everything
 docker compose down
@@ -147,7 +147,7 @@ docker compose down
 docker compose logs -f app
 
 # Rebuild after code changes
-docker compose up -d --build
+docker compose --env-file docker.env up -d --build
 
 # Restart app only (no rebuild)
 docker compose restart app
@@ -234,7 +234,7 @@ When you get a new version of Clinic-Q:
 
 ```bash
 # Upload new files, then:
-docker compose up -d --build
+docker compose --env-file docker.env up -d --build
 ```
 
 The database is preserved in the Docker volume — patient data is safe.
@@ -248,7 +248,7 @@ The database is preserved in the Docker volume — patient data is safe.
 | Can't open in browser | Check firewall — open port 3001 |
 | App won't start | Run `docker compose logs app` to see error |
 | Database error | Run `docker compose logs db` — check DB_PASSWORD matches |
-| Changes not showing | Run `docker compose up -d --build` to rebuild |
+| Changes not showing | Run `docker compose --env-file docker.env up -d --build` to rebuild |
 
 ---
 
