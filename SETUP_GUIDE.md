@@ -314,24 +314,24 @@ sudo systemctl restart nginx
 
 ### Option 3: Docker Deployment
 
-The project includes a production-ready `Dockerfile` and `docker-compose.yml`. See **[DEPLOY.md](./DEPLOY.md)** for the complete 5-step guide.
+The project includes a production-ready `Dockerfile` and `docker-compose.yml`. See **[DEPLOY.md](./DEPLOY.md)** for all three hosting options (local, Docker, no-Docker).
 
 Quick summary:
 ```bash
 # 1. Copy and configure environment
-cp docker.env.example docker.env
-# Edit docker.env: set DB_PASSWORD
+cp .env.example .env
+# Edit .env: set DB_PASSWORD (and matching DATABASE_URL password)
 
 # 2. Edit secretcred.json (usernames/passwords/subscription dates)
 # 3. Edit metadata.json (hospital name)
 
-# 4. Build and start
-docker compose --env-file docker.env up -d --build
+# 4. Build and start — one command
+docker compose up -d --build
 ```
 
 App will be available at `http://your-server-ip:3001`
 
-The `docker-compose.yml` uses `docker.env` for configuration — no hardcoded passwords.
+Docker Compose reads `.env` automatically — no extra flags needed.
 
 ---
 
@@ -339,7 +339,8 @@ The `docker-compose.yml` uses `docker.env` for configuration — no hardcoded pa
 
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
-| DATABASE_URL | Yes | Full PostgreSQL connection string | postgresql://user:pass@localhost:5432/clinicq |
+| DB_PASSWORD | Docker only | Postgres container password | MySecurePass123 |
+| DATABASE_URL | Yes | Full PostgreSQL connection string | postgresql://clinicq:pass@localhost:5432/clinicq |
 | PORT | No | Backend server port (default: 3001) | 3001 |
 
 **Note:** The application uses only `DATABASE_URL` to connect to PostgreSQL. The connection string format is:
@@ -484,4 +485,4 @@ clinic-q/
 ---
 
 **Version:** 1.50  
-**Last Updated:** February 26, 2026
+**Last Updated:** March 7, 2026

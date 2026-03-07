@@ -211,10 +211,16 @@ cp .env.example .env
 
 ### Step 2: Edit .env File
 
-Open `.env` in a text editor and update the values:
+Open `.env` in a text editor. Update `DATABASE_URL` with your local Postgres details:
 
 ```env
-DATABASE_URL=postgresql://clinicq:your_secure_password@localhost:5432/clinicq_db
+# For local Postgres (non-Docker setup):
+DATABASE_URL=postgresql://clinicq:your_secure_password@localhost:5432/clinicq
+
+# DB_PASSWORD is only needed if running with Docker
+DB_PASSWORD=your_secure_password
+
+PORT=3001
 ```
 
 Replace `your_secure_password` with the password you set in the database setup step.
@@ -718,4 +724,4 @@ If you encounter issues not covered in this guide, check:
 
 ---
 
-**Clinic-Q v1.50** | Last Updated: February 26, 2026
+**Clinic-Q v1.50** | Last Updated: March 7, 2026

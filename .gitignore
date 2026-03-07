@@ -12,8 +12,7 @@ dist
 dist-ssr
 *.local
 
-# Docker secrets - never commit these
-docker.env
+# Secrets - never commit these
 .env
 
 # Editor directories and files

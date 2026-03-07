@@ -23,8 +23,6 @@ services:
     restart: always
     ports:
       - "${PORT:-3001}:${PORT:-3001}"
-    env_file:
-      - docker.env
     environment:
       DATABASE_URL: postgresql://clinicq:${DB_PASSWORD}@db:5432/clinicq
       NODE_ENV: production
