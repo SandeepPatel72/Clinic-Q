@@ -83,11 +83,15 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange, apiEndpoint, placeh
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === ',' || e.key === 'Enter') {
+    if (e.key === ',') {
       e.preventDefault();
+      if (input.trim()) addTag(input);
+    } else if (e.key === 'Enter') {
       if (showSuggestions && highlightedIndex >= 0) {
+        e.preventDefault();
         addTag(suggestions[highlightedIndex]);
       } else if (input.trim()) {
+        e.preventDefault();
         addTag(input);
       }
     } else if (e.key === 'Backspace' && !input && tags.length > 0) {
@@ -136,6 +140,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange, apiEndpoint, placeh
             ref={inputRef}
             type="text"
             autoComplete="off"
+            data-ef=""
             className="flex-1 min-w-[120px] bg-transparent outline-none text-sm font-medium text-slate-900 placeholder:text-slate-300 py-1"
             placeholder={tags.length === 0 ? (placeholder || `Type and press comma to add`) : ''}
             value={input}

@@ -52,6 +52,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
   const [metadata, setMetadata] = useState<{ hospitalName?: string; appName?: string }>({});
 
   const formRef = useRef<HTMLFormElement>(null);
+  const finalizeBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (patient) {
@@ -90,6 +91,18 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
         } else if (e.ctrlKey) {
           e.preventDefault();
           formRef.current.requestSubmit();
+        } else if (!e.defaultPrevented) {
+          const active = document.activeElement as HTMLElement;
+          if (active.hasAttribute('data-ef')) {
+            e.preventDefault();
+            const allEf = Array.from(formRef.current.querySelectorAll('[data-ef]')) as HTMLElement[];
+            const idx = allEf.indexOf(active);
+            if (idx >= 0 && idx < allEf.length - 1) {
+              allEf[idx + 1].focus();
+            } else {
+              finalizeBtnRef.current?.focus();
+            }
+          }
         }
       }
     };
@@ -289,6 +302,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
       <div className="flex items-center gap-1">
         <input
           type={type}
+          data-ef=""
           className="w-full bg-white border-2 border-slate-200 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
           placeholder={placeholder}
           value={value}
@@ -410,6 +424,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
             <div key={index} className="grid grid-cols-[70px_1fr_80px_60px_120px_36px] gap-0 border-t border-emerald-100 bg-white">
               <div className="px-1 py-1 border-r border-emerald-50">
                 <select
+                  data-ef=""
                   className="w-full bg-transparent text-xs font-medium text-slate-800 outline-none py-1.5 cursor-pointer"
                   value={rx.type}
                   onChange={e => updatePrescription(index, 'type', e.target.value)}
@@ -420,6 +435,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
               <div className="px-1 py-1 border-r border-emerald-50 relative">
                 <input
                   type="text"
+                  data-ef=""
                   className="w-full bg-transparent text-xs font-medium text-slate-800 outline-none py-1.5 placeholder:text-slate-300"
                   placeholder="Medicine name"
                   value={rx.name}
@@ -451,6 +467,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
               <div className="px-1 py-1 border-r border-emerald-50">
                 <input
                   type="text"
+                  data-ef=""
                   className="w-full bg-transparent text-xs font-medium text-slate-800 outline-none py-1.5 placeholder:text-slate-300"
                   placeholder="1-0-1"
                   value={rx.dose}
@@ -460,6 +477,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
               <div className="px-1 py-1 border-r border-emerald-50">
                 <input
                   type="text"
+                  data-ef=""
                   className="w-full bg-transparent text-xs font-medium text-slate-800 outline-none py-1.5 placeholder:text-slate-300"
                   placeholder="5"
                   value={rx.days}
@@ -468,6 +486,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
               </div>
               <div className="px-1 py-1 border-r border-emerald-50">
                 <select
+                  data-ef=""
                   className="w-full bg-transparent text-xs font-medium text-slate-800 outline-none py-1.5 cursor-pointer"
                   value={rx.instructions}
                   onChange={e => updatePrescription(index, 'instructions', e.target.value)}
@@ -496,6 +515,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.15em] ml-1">Advice / Instructions</label>
           <textarea
+            data-ef=""
             className="w-full bg-white border-2 border-slate-200 rounded-xl p-3 text-sm font-medium text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300 resize-none"
             rows={2}
             placeholder="Rest, diet instructions, follow-up advice..."
@@ -506,6 +526,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.15em] ml-1">Follow-up</label>
           <select
+            data-ef=""
             className="w-full bg-white border-2 border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all"
             value={followUpDate}
             onChange={e => setFollowUpDate(e.target.value)}
@@ -572,6 +593,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
           Print & Fin (Shift+Ent)
         </button>
         <button
+          ref={finalizeBtnRef}
           type="submit"
           className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-2xl shadow-xl transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 text-sm uppercase tracking-[0.15em]"
         >
