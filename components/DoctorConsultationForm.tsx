@@ -52,6 +52,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [medicineSuggestions, setMedicineSuggestions] = useState<Record<number, string[]>>({});
   const [medicineSuggestPos, setMedicineSuggestPos] = useState<Record<number, { top: number; left: number; width: number }>>({});
+  const [medicineHighlightIdx, setMedicineHighlightIdx] = useState<Record<number, number>>({});
   const [metadata, setMetadata] = useState<{ hospitalName?: string; appName?: string }>({});
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -291,9 +292,11 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
       if (res.ok) {
         const data = await res.json();
         setMedicineSuggestions(prev => ({ ...prev, [index]: data }));
+        setMedicineHighlightIdx(prev => ({ ...prev, [index]: -1 }));
       }
     } catch {
       setMedicineSuggestions(prev => ({ ...prev, [index]: [] }));
+      setMedicineHighlightIdx(prev => ({ ...prev, [index]: -1 }));
     }
   };
 
@@ -452,19 +455,48 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
                     setMedicineSuggestPos(prev => ({ ...prev, [index]: { top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 160) } }));
                   }}
                   onBlur={() => setTimeout(() => setMedicineSuggestions(prev => ({ ...prev, [index]: [] })), 200)}
+                  onKeyDown={e => {
+                    const suggs = medicineSuggestions[index] || [];
+                    const hi = medicineHighlightIdx[index] ?? -1;
+                    if (e.key === 'ArrowDown') {
+                      if (suggs.length === 0) return;
+                      e.preventDefault();
+                      setMedicineHighlightIdx(prev => ({ ...prev, [index]: (hi + 1) % suggs.length }));
+                    } else if (e.key === 'ArrowUp') {
+                      if (suggs.length === 0) return;
+                      e.preventDefault();
+                      setMedicineHighlightIdx(prev => ({ ...prev, [index]: (hi - 1 + suggs.length) % suggs.length }));
+                    } else if (e.key === 'Enter') {
+                      if (suggs.length > 0 && hi >= 0) {
+                        e.preventDefault();
+                        updatePrescription(index, 'name', suggs[hi]);
+                        setMedicineSuggestions(prev => ({ ...prev, [index]: [] }));
+                        setMedicineHighlightIdx(prev => ({ ...prev, [index]: -1 }));
+                      }
+                    } else if (e.key === 'Escape') {
+                      setMedicineSuggestions(prev => ({ ...prev, [index]: [] }));
+                      setMedicineHighlightIdx(prev => ({ ...prev, [index]: -1 }));
+                    }
+                  }}
                 />
                 {medicineSuggestions[index]?.length > 0 && medicineSuggestPos[index] && createPortal(
                   <div
                     className="bg-white border-2 border-indigo-200 rounded-lg shadow-xl overflow-y-auto"
                     style={{ position: 'fixed', top: medicineSuggestPos[index].top, left: medicineSuggestPos[index].left, width: medicineSuggestPos[index].width, maxHeight: 140, zIndex: 9999 }}
                   >
-                    {medicineSuggestions[index].map(s => (
+                    {medicineSuggestions[index].map((s, i) => (
                       <div
                         key={s}
-                        className="px-3 py-1.5 cursor-pointer text-xs font-medium text-slate-700 hover:bg-indigo-50 transition-colors"
+                        className={`px-3 py-1.5 cursor-pointer text-xs font-medium transition-colors ${
+                          i === (medicineHighlightIdx[index] ?? -1)
+                            ? 'bg-indigo-100 text-indigo-800'
+                            : 'text-slate-700 hover:bg-indigo-50'
+                        }`}
+                        onMouseEnter={() => setMedicineHighlightIdx(prev => ({ ...prev, [index]: i }))}
                         onMouseDown={() => {
                           updatePrescription(index, 'name', s);
                           setMedicineSuggestions(prev => ({ ...prev, [index]: [] }));
+                          setMedicineHighlightIdx(prev => ({ ...prev, [index]: -1 }));
                         }}
                       >
                         {s}
