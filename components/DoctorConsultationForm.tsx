@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Patient, PatientCategory, PrescriptionItem } from '../types';
 import { Icons } from '../constants';
 import PatientHistoryModal from './PatientHistoryModal';
@@ -50,6 +51,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
   const [medicines, setMedicines] = useState('');
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [medicineSuggestions, setMedicineSuggestions] = useState<Record<number, string[]>>({});
+  const [medicineSuggestPos, setMedicineSuggestPos] = useState<Record<number, { top: number; left: number; width: number }>>({});
   const [metadata, setMetadata] = useState<{ hospitalName?: string; appName?: string }>({});
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -430,7 +432,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
                   className="w-full"
                 />
               </div>
-              <div className="px-1 py-1 border-r border-emerald-50 relative">
+              <div className="px-1 py-1 border-r border-emerald-50">
                 <input
                   type="text"
                   data-ef=""
@@ -441,12 +443,21 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
                   onChange={e => {
                     updatePrescription(index, 'name', e.target.value);
                     fetchMedicineSuggestions(index, e.target.value);
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setMedicineSuggestPos(prev => ({ ...prev, [index]: { top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 160) } }));
                   }}
-                  onFocus={() => fetchMedicineSuggestions(index, rx.name)}
+                  onFocus={e => {
+                    fetchMedicineSuggestions(index, rx.name);
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setMedicineSuggestPos(prev => ({ ...prev, [index]: { top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 160) } }));
+                  }}
                   onBlur={() => setTimeout(() => setMedicineSuggestions(prev => ({ ...prev, [index]: [] })), 200)}
                 />
-                {medicineSuggestions[index]?.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-0.5 bg-white border-2 border-indigo-200 rounded-lg shadow-xl z-50 max-h-32 overflow-y-auto">
+                {medicineSuggestions[index]?.length > 0 && medicineSuggestPos[index] && createPortal(
+                  <div
+                    className="bg-white border-2 border-indigo-200 rounded-lg shadow-xl overflow-y-auto"
+                    style={{ position: 'fixed', top: medicineSuggestPos[index].top, left: medicineSuggestPos[index].left, width: medicineSuggestPos[index].width, maxHeight: 140, zIndex: 9999 }}
+                  >
                     {medicineSuggestions[index].map(s => (
                       <div
                         key={s}
@@ -459,7 +470,8 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
                         {s}
                       </div>
                     ))}
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
               <div className="px-1 py-1 border-r border-emerald-50">
