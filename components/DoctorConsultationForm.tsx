@@ -4,6 +4,7 @@ import { Patient, PatientCategory, PrescriptionItem } from '../types';
 import { Icons } from '../constants';
 import PatientHistoryModal from './PatientHistoryModal';
 import TagInput from './TagInput';
+import RxDropdown from './RxDropdown';
 
 const API_BASE = '/api';
 
@@ -281,10 +282,6 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
   };
 
   const fetchMedicineSuggestions = async (index: number, query: string) => {
-    if (query.trim().length < 1) {
-      setMedicineSuggestions(prev => ({ ...prev, [index]: [] }));
-      return;
-    }
     try {
       const res = await authFetch(`${API_BASE}/tags/medicines?q=${encodeURIComponent(query.trim())}`);
       if (res.ok) {
@@ -423,14 +420,12 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
           {prescription.map((rx, index) => (
             <div key={index} className="grid grid-cols-[70px_1fr_80px_60px_120px_36px] gap-0 border-t border-emerald-100 bg-white">
               <div className="px-1 py-1 border-r border-emerald-50">
-                <select
-                  data-ef=""
-                  className="w-full bg-transparent text-xs font-medium text-slate-800 outline-none py-1.5 cursor-pointer"
+                <RxDropdown
                   value={rx.type}
-                  onChange={e => updatePrescription(index, 'type', e.target.value)}
-                >
-                  {RX_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
+                  onChange={v => updatePrescription(index, 'type', v)}
+                  options={RX_TYPES}
+                  className="w-full"
+                />
               </div>
               <div className="px-1 py-1 border-r border-emerald-50 relative">
                 <input
@@ -444,7 +439,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
                     updatePrescription(index, 'name', e.target.value);
                     fetchMedicineSuggestions(index, e.target.value);
                   }}
-                  onFocus={() => { if (rx.name.trim()) fetchMedicineSuggestions(index, rx.name); }}
+                  onFocus={() => fetchMedicineSuggestions(index, rx.name)}
                   onBlur={() => setTimeout(() => setMedicineSuggestions(prev => ({ ...prev, [index]: [] })), 200)}
                 />
                 {medicineSuggestions[index]?.length > 0 && (
@@ -485,14 +480,12 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
                 />
               </div>
               <div className="px-1 py-1 border-r border-emerald-50">
-                <select
-                  data-ef=""
-                  className="w-full bg-transparent text-xs font-medium text-slate-800 outline-none py-1.5 cursor-pointer"
+                <RxDropdown
                   value={rx.instructions}
-                  onChange={e => updatePrescription(index, 'instructions', e.target.value)}
-                >
-                  {RX_INSTRUCTIONS.map(i => <option key={i} value={i}>{i}</option>)}
-                </select>
+                  onChange={v => updatePrescription(index, 'instructions', v)}
+                  options={RX_INSTRUCTIONS}
+                  className="w-full"
+                />
               </div>
               <div className="flex items-center justify-center">
                 {prescription.length > 1 && (
