@@ -6,6 +6,7 @@ import { Icons } from '../constants';
 import PatientHistoryModal from './PatientHistoryModal';
 import TagInput from './TagInput';
 import RxDropdown from './RxDropdown';
+import RxCombobox from './RxCombobox';
 
 const API_BASE = '/api';
 
@@ -19,6 +20,7 @@ interface DoctorConsultationFormProps {
 const EMPTY_RX: PrescriptionItem = { type: 'Tab', name: '', dose: '', days: '', instructions: 'After Food' };
 
 const RX_TYPES = ['Tab', 'Cap', 'Syp', 'Inj', 'Drops', 'Cream', 'Gel', 'Powder', 'Inhaler', 'Other'];
+const RX_DOSES = ['1-0-1', '1-1-1', '1-0-0', '0-0-1', '0-1-0', '1-1-1-1', 'BD', 'TDS', 'OD', 'SOS'];
 const RX_INSTRUCTIONS = ['Before Food', 'After Food', 'With Food', 'Empty Stomach', 'At Bedtime', 'SOS', 'As Directed'];
 
 function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
@@ -507,13 +509,12 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
                 )}
               </div>
               <div className="px-1 py-1 border-r border-emerald-50">
-                <input
-                  type="text"
-                  data-ef=""
-                  className="w-full bg-transparent text-xs font-medium text-slate-800 outline-none py-1.5 placeholder:text-slate-300"
-                  placeholder="1-0-1"
+                <RxCombobox
                   value={rx.dose}
-                  onChange={e => updatePrescription(index, 'dose', e.target.value)}
+                  onChange={v => updatePrescription(index, 'dose', v)}
+                  options={RX_DOSES}
+                  placeholder="1-0-1"
+                  className="w-full"
                 />
               </div>
               <div className="px-1 py-1 border-r border-emerald-50">
