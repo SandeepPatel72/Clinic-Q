@@ -54,6 +54,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
 
   const formRef = useRef<HTMLFormElement>(null);
   const finalizeBtnRef = useRef<HTMLButtonElement>(null);
+  const bpRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (patient) {
@@ -69,8 +70,9 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
       setFollowUpDate(patient.followUpDate || '');
       setNotes(patient.notes || '');
       setMedicines(patient.medicines || '');
+      setTimeout(() => bpRef.current?.focus(), 50);
     }
-  }, [patient]);
+  }, [patient?.id]);
 
   useEffect(() => {
     fetch('/metadata.json').then(r => r.json()).then(d => setMetadata(d)).catch(() => {});
@@ -293,11 +295,12 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
     }
   };
 
-  const vitalInput = (label: string, value: string, onChange: (v: string) => void, placeholder: string, unit: string, type: string = 'text') => (
+  const vitalInput = (label: string, value: string, onChange: (v: string) => void, placeholder: string, unit: string, type: string = 'text', inputRef?: React.RefObject<HTMLInputElement>) => (
     <div className="flex flex-col gap-1">
       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.12em]">{label}</label>
       <div className="flex items-center gap-1">
         <input
+          ref={inputRef}
           type={type}
           data-ef=""
           className="w-full bg-white border-2 border-slate-200 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
@@ -362,7 +365,7 @@ const DoctorConsultationForm: React.FC<DoctorConsultationFormProps> = ({ patient
           <span className="text-[11px] font-black text-sky-700 uppercase tracking-[0.15em]">Vitals</span>
         </div>
         <div className="grid grid-cols-5 gap-3">
-          {vitalInput('BP', bp, setBp, '120/80', 'mmHg')}
+          {vitalInput('BP', bp, setBp, '120/80', 'mmHg', 'text', bpRef)}
           {vitalInput('Temp', temperature, setTemperature, '98.6', '°F', 'number')}
           {vitalInput('Pulse', pulse, setPulse, '72', 'bpm', 'number')}
           {vitalInput('Weight', weight, setWeight, '60', 'kg', 'number')}

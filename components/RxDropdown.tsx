@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface RxDropdownProps {
   value: string;
@@ -10,23 +11,42 @@ interface RxDropdownProps {
 const RxDropdown: React.FC<RxDropdownProps> = ({ value, onChange, options, className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIdx, setHighlightedIdx] = useState(0);
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const openDropdown = () => {
     const idx = options.indexOf(value);
     setHighlightedIdx(idx >= 0 ? idx : 0);
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 110) });
+    }
     setIsOpen(true);
   };
 
-  const closeDropdown = () => setIsOpen(false);
+  const closeDropdown = () => {
+    setIsOpen(false);
+    setDropdownPos(null);
+  };
 
   const selectOption = (option: string) => {
     onChange(option);
     setIsOpen(false);
+    setDropdownPos(null);
   };
 
-  const handleFocus = () => openDropdown();
+  useEffect(() => {
+    if (!isOpen) return;
+    const close = () => closeDropdown();
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [isOpen]);
 
+  const handleFocus = () => openDropdown();
   const handleBlur = () => setTimeout(() => closeDropdown(), 120);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -74,8 +94,11 @@ const RxDropdown: React.FC<RxDropdownProps> = ({ value, onChange, options, class
         </svg>
       </div>
 
-      {isOpen && (
-        <div className="absolute top-full left-0 min-w-[110px] mt-0.5 bg-white border-2 border-indigo-200 rounded-lg shadow-xl z-50 overflow-hidden">
+      {isOpen && dropdownPos && createPortal(
+        <div
+          className="bg-white border-2 border-indigo-200 rounded-lg shadow-xl overflow-hidden"
+          style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, minWidth: dropdownPos.width, zIndex: 9999 }}
+        >
           {options.map((opt, i) => (
             <div
               key={opt}
@@ -90,7 +113,8 @@ const RxDropdown: React.FC<RxDropdownProps> = ({ value, onChange, options, class
               {opt}
             </div>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
