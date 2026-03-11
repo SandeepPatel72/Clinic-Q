@@ -923,7 +923,7 @@ const App: React.FC = () => {
     <div className="flex flex-col h-screen w-full bg-[#f8fafc] font-sans overflow-hidden">
       <header className={`bg-[#4338ca] text-white shadow-md flex items-center justify-between z-10 shrink-0 ${isTablet ? 'p-2 px-3' : 'p-3 px-4'}`}>
         <div className={`flex items-center ${isTablet ? 'gap-2' : 'gap-4'}`}>
-          <h1 className={`font-bold ${isTablet ? 'text-xl' : 'text-3xl'}`}>
+          <h1 className={`font-bold cursor-pointer transition-opacity hover:opacity-70 ${isTablet ? 'text-xl' : 'text-3xl'}`} onClick={() => window.location.reload()}>
             {appName}
           </h1>
           <div className={`font-black bg-[#1e1b4b]/50 rounded-lg border border-indigo-400/30 uppercase tracking-widest text-indigo-100 ${isTablet ? 'text-[8px] px-1.5 py-0.5' : 'text-[10px] px-2.5 py-1'}`}>
@@ -1171,7 +1171,7 @@ const App: React.FC = () => {
                     </button>
                   )}
                 </div>
-                <div className={`${isTablet ? 'p-2' : 'p-4'} flex-1 overflow-y-auto`}>
+                <div className={`${isTablet ? 'p-1' : 'p-1.5'} flex-1 overflow-y-auto`}>
                   {activeView === 'OPERATOR' ? (
                     <PatientForm 
                       onSubmit={editingPatient ? (data) => updatePatient(editingPatient.id, data) : addPatient} 
